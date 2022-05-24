@@ -1,7 +1,10 @@
 import { configureStore, ThunkAction, Action } from '@reduxjs/toolkit'
+import sessionReducer from './slices/sessionSlice'
 
 export const store = configureStore({
-  reducer: {},
+  reducer: {
+    session: sessionReducer,
+  },
 })
 
 export type AppDispatch = typeof store.dispatch
