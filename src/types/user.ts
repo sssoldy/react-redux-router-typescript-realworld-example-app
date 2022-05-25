@@ -15,14 +15,14 @@ export interface ILoginReq {
   user: ILoginUser
 }
 
-export interface INewUser {
+export interface IRegisterUser {
   username: string
   email: string
   password: string
 }
 
 export interface IRegisterUserReq {
-  user: INewUser
+  user: IRegisterUser
 }
 
 export interface IUserRes {
