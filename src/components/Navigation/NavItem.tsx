@@ -16,13 +16,8 @@ const NavItem: React.FC<NavItemProps> = ({ to, user, icon, children }) => {
 
   const active = `nav-link ${(isActive: boolean) => (isActive ? 'active' : '')}`
 
-  const defImgSrc = 'https://static.productionready.io/images/smiley-cyrus.jpg'
   const userImg = user && (
-    <img
-      src={user.image || defImgSrc}
-      className="user-pic"
-      alt={user.username}
-    />
+    <img src={user.image} className="user-pic" alt={user.username} />
   )
 
   return (

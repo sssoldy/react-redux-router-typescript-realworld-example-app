@@ -6,8 +6,6 @@ import { IFromState } from '../../types/locationState'
 
 const NoRequireAuth: React.FC = () => {
   const auth = useAppSelector(selectSessionToken)
-  console.log('NoAuth:' + Boolean(auth))
-
   const location = useLocation()
   const from: IFromState = { from: location }
 

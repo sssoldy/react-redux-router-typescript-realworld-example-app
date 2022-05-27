@@ -35,7 +35,7 @@ const Register: React.FC = () => {
     }))
   }
 
-  const onFormSubmitted = async (e: React.FormEvent<HTMLFormElement>) => {
+  const onFormSubmitted = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     dispatch(registerUser({ user: formData }))
   }

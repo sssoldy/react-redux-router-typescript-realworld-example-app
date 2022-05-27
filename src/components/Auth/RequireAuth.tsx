@@ -8,7 +8,6 @@ const RequireAuth: React.FC = () => {
   const auth = useAppSelector(selectUserToken)
   const location = useLocation()
   const from: IFromState = { from: location }
-  console.log('Auth:' + Boolean(auth))
 
   if (!auth) {
     return <Navigate to="/login" state={from} replace />

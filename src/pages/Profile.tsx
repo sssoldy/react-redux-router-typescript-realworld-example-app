@@ -1,26 +1,33 @@
 import * as React from 'react'
+import { Link } from 'react-router-dom'
+import { useAppSelector } from '../app/hooks'
+import { selectUser } from '../app/slices/userSlice'
 
 const Profile: React.FC = () => {
+  const user = useAppSelector(selectUser)
+
+  // FIXME: Temp
+  if (!user) return null
+
   return (
     <div className="profile-page">
       <div className="user-info">
         <div className="container">
           <div className="row">
             <div className="col-xs-12 col-md-10 offset-md-1">
-              <img
-                src="http://i.imgur.com/Qr71crq.jpg"
-                className="user-img"
-                alt="placeholder"
-              />
-              <h4>Eric Simons</h4>
-              <p>
-                Cofounder @GoThinkster, lived in Aol's HQ for a few months,
-                kinda looks like Peeta from the Hunger Games
-              </p>
-              <button className="btn btn-sm btn-outline-secondary action-btn">
+              <img src={user.image} className="user-pic" alt={user.username} />
+              <h4>{user.username}</h4>
+              <p>{user.bio}</p>
+              <Link to="/settings">
+                <button className="btn btn-sm btn-outline-secondary action-btn">
+                  <i className="ion-gear-a"></i>
+                  &nbsp; Edit Profile Settings
+                </button>
+              </Link>
+              {/* <button className="btn btn-sm btn-outline-secondary action-btn">
                 <i className="ion-plus-round"></i>
-                &nbsp; Follow Eric Simons
-              </button>
+                &nbsp; Follow {user.username}
+              </button> */}
             </div>
           </div>
         </div>
