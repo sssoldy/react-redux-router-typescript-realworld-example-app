@@ -1,26 +1,33 @@
 import * as React from 'react'
-import { NavLink } from 'react-router-dom'
+import { NavLink, useLocation } from 'react-router-dom'
+import { IFromState } from '../../types/locationState'
+import { IUser } from '../../types/user'
 
 interface NavItemProps {
   to: string
   icon?: string
-  user?: boolean // TODO: update with real data
+  user?: IUser
   children: React.ReactNode
 }
 
 const NavItem: React.FC<NavItemProps> = ({ to, user, icon, children }) => {
+  const location = useLocation()
+  const from: IFromState = { from: location }
+
   const active = `nav-link ${(isActive: boolean) => (isActive ? 'active' : '')}`
-  const userImg = (
+
+  const defImgSrc = 'https://static.productionready.io/images/smiley-cyrus.jpg'
+  const userImg = user && (
     <img
-      src="https://static.productionready.io/images/smiley-cyrus.jpg"
+      src={user.image || defImgSrc}
       className="user-pic"
-      alt="mwu04496@jeoce.com"
+      alt={user.username}
     />
   )
 
   return (
     <li className="nav-item">
-      <NavLink to={to} className={`nav-link ${active}`}>
+      <NavLink to={to} state={from} className={`nav-link ${active}`}>
         {icon && <i className={icon}></i>}
         {user && userImg}
         {children}

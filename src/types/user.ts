@@ -3,7 +3,7 @@ export interface IUser {
   token: string
   username: string
   bio: string
-  image: string
+  image: string | null
 }
 
 export interface ILoginUser {

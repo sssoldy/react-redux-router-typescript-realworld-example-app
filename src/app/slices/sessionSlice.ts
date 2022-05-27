@@ -24,6 +24,6 @@ const sessionSlice = createSlice({
 
 export const { tokenAdded, tokenRemoved } = sessionSlice.actions
 
-export const selectToken = (state: RootState) => state.session.token
+export const selectSessionToken = (state: RootState) => state.session.token
 
 export default sessionSlice.reducer

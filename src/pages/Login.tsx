@@ -1,12 +1,30 @@
 import * as React from 'react'
+import { useNavigate } from 'react-router-dom'
+import { useAppDispatch, useAppSelector } from '../app/hooks'
+import {
+  loginUser,
+  selectUserErrors,
+  selectUserStatus,
+} from '../app/slices/userSlice'
+import ErrorList from '../components/ErrorList/ErrorList'
+import { useLocationState } from '../hooks/useLocationState'
+import { IFromState } from '../types/locationState'
 import { ILoginUser } from '../types/user'
 
+// TODO: Add client side validation
 const Login: React.FC = () => {
   const [formData, setFormData] = React.useState<ILoginUser>({
     email: '',
     password: '',
   })
   const { email, password } = formData
+  const status = useAppSelector(selectUserStatus)
+  const errors = useAppSelector(selectUserErrors)
+  const locationState = useLocationState<IFromState>()
+  const from = locationState?.from?.pathname || '/'
+
+  const navigate = useNavigate()
+  const dispatch = useAppDispatch()
 
   const onInputChanged = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
@@ -18,8 +36,12 @@ const Login: React.FC = () => {
 
   const onFormSubmitted = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    console.log(formData)
+    dispatch(loginUser({ user: formData }))
   }
+
+  React.useEffect(() => {
+    if (status === 'successed') navigate(from, { replace: true })
+  }, [from, navigate, status])
 
   return (
     <div className="auth-page">
@@ -31,32 +53,34 @@ const Login: React.FC = () => {
               <a href="/">Need an account?</a>
             </p>
 
-            <ul className="error-messages">
-              <li>That email is already taken</li>
-            </ul>
+            <ErrorList errors={errors} />
 
             <form onSubmit={e => onFormSubmitted(e)}>
-              <fieldset className="form-group">
-                <input
-                  className="form-control form-control-lg"
-                  type="text"
-                  placeholder="Email"
-                  name="email"
-                  value={email}
-                  onChange={e => onInputChanged(e)}
-                />
-                <input
-                  className="form-control form-control-lg"
-                  type="password"
-                  placeholder="Password"
-                  name="password"
-                  value={password}
-                  onChange={e => onInputChanged(e)}
-                />
+              <fieldset disabled={status === 'loading'}>
+                <fieldset className="form-group">
+                  <input
+                    className="form-control form-control-lg"
+                    type="text"
+                    placeholder="Email"
+                    name="email"
+                    value={email}
+                    onChange={e => onInputChanged(e)}
+                  />
+                </fieldset>
+                <fieldset className="form-group">
+                  <input
+                    className="form-control form-control-lg"
+                    type="password"
+                    placeholder="Password"
+                    name="password"
+                    value={password}
+                    onChange={e => onInputChanged(e)}
+                  />
+                </fieldset>
+                <button className="btn btn-lg btn-primary pull-xs-right">
+                  Sign in
+                </button>
               </fieldset>
-              <button className="btn btn-lg btn-primary pull-xs-right">
-                Sign in
-              </button>
             </form>
           </div>
         </div>

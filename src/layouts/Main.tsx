@@ -1,11 +1,12 @@
 import * as React from 'react'
+import { Outlet } from 'react-router-dom'
 
-interface MainProps {
-  children: React.ReactNode
-}
-
-const Main: React.FC<MainProps> = ({ children }) => {
-  return <main>{children}</main>
+const Main: React.FC = () => {
+  return (
+    <main>
+      <Outlet />
+    </main>
+  )
 }
 
 export default Main
