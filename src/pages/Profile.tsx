@@ -1,57 +1,21 @@
 import * as React from 'react'
-import { Link } from 'react-router-dom'
-import { useAppSelector } from '../app/hooks'
-import { selectUser } from '../app/slices/userSlice'
+import { useParams } from 'react-router-dom'
+import ArticleFilters from '../components/ArticleFilters/ArticleFilters'
+import ProfileInfo from '../components/ProfileInfo/ProfileInfo'
+import UserInfo from '../components/ProfileInfo/UserInfo'
 
 const Profile: React.FC = () => {
-  const user = useAppSelector(selectUser)
-
-  // FIXME: Temp
-  if (!user) return null
+  const { username } = useParams()
 
   return (
     <div className="profile-page">
-      <div className="user-info">
-        <div className="container">
-          <div className="row">
-            <div className="col-xs-12 col-md-10 offset-md-1">
-              <img src={user.image} className="user-pic" alt={user.username} />
-              <h4>{user.username}</h4>
-              <p>{user.bio}</p>
-              <Link to="/settings">
-                <button className="btn btn-sm btn-outline-secondary action-btn">
-                  <i className="ion-gear-a"></i>
-                  &nbsp; Edit Profile Settings
-                </button>
-              </Link>
-              {/* <button className="btn btn-sm btn-outline-secondary action-btn">
-                <i className="ion-plus-round"></i>
-                &nbsp; Follow {user.username}
-              </button> */}
-            </div>
-          </div>
-        </div>
-      </div>
-
+      {username ? <ProfileInfo username={username} /> : <UserInfo />}
       <div className="container">
         <div className="row">
           <div className="col-xs-12 col-md-10 offset-md-1">
-            <div className="articles-toggle">
-              <ul className="nav nav-pills outline-active">
-                <li className="nav-item">
-                  <a className="nav-link active" href="/">
-                    My Articles
-                  </a>
-                </li>
-                <li className="nav-item">
-                  <a className="nav-link" href="/">
-                    Favorited Articles
-                  </a>
-                </li>
-              </ul>
-            </div>
+            <ArticleFilters />
 
-            <div className="article-preview">
+            {/* <div className="article-preview">
               <div className="article-meta">
                 <a href="/">
                   <img src="http://i.imgur.com/Qr71crq.jpg" alt="placeholder" />
@@ -100,7 +64,7 @@ const Profile: React.FC = () => {
                   <li className="tag-default tag-pill tag-outline">Song</li>
                 </ul>
               </a>
-            </div>
+            </div> */}
           </div>
         </div>
       </div>

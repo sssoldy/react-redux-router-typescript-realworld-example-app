@@ -1,11 +1,11 @@
 import { configureStore, ThunkAction, Action } from '@reduxjs/toolkit'
-import sessionReducer from './slices/sessionSlice'
 import userReducer from './slices/userSlice'
+import profileReducer from './slices/profileSlice'
 
 export const store = configureStore({
   reducer: {
-    session: sessionReducer,
     user: userReducer,
+    profile: profileReducer,
   },
 })
 

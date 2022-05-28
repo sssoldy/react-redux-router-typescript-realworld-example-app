@@ -1,10 +1,14 @@
 import * as React from 'react'
 import { Route, Routes } from 'react-router-dom'
-import { useAppDispatch } from './app/hooks'
-import { tokenAdded } from './app/slices/sessionSlice'
-import { getCurrentUser } from './app/slices/userSlice'
-import NoRequireAuth from './components/Auth/NoRequireAuth'
+import { useAppDispatch, useAppSelector } from './app/hooks'
+import {
+  getCurrentUser,
+  selectUserInitError,
+  selectUserInitStatus,
+} from './app/slices/userSlice'
 import RequireAuth from './components/Auth/RequireAuth'
+import FullPageError from './components/FullPageError/FullPageError'
+import FullPageSpinner from './components/FullPageSpinner/FullPageSpinner'
 import Footer from './layouts/Footer'
 import Header from './layouts/Header'
 import Main from './layouts/Main'
@@ -17,13 +21,21 @@ import Register from './pages/Register'
 import Settings from './pages/Settings'
 
 const App: React.FC = () => {
+  const error = useAppSelector(selectUserInitError)
+  const status = useAppSelector(selectUserInitStatus)
+  const token = localStorage.getItem('jwt')
+
   const dispatch = useAppDispatch()
 
-  const token = localStorage.getItem('jwt')
-  if (token) {
-    dispatch(tokenAdded(token))
-    dispatch(getCurrentUser())
-  }
+  React.useEffect(() => {
+    if (token && status === 'idle') {
+      dispatch(getCurrentUser(token))
+    }
+  }, [dispatch, status, token])
+
+  if (token && (status === 'idle' || status === 'loading'))
+    return <FullPageSpinner />
+  if (token && status === 'failed') return <FullPageError error={error} />
 
   return (
     <React.Fragment>
@@ -33,11 +45,10 @@ const App: React.FC = () => {
           <Route index element={<Home />} />
           <Route path="article/:slug" element={<Article />} />
           <Route path="profile/:username" element={<Profile />} />
-          <Route element={<NoRequireAuth />}>
-            <Route path="login" element={<Login />} />
-            <Route path="register" element={<Register />} />
-          </Route>
+          <Route path="login" element={<Login />} />
+          <Route path="register" element={<Register />} />
           <Route element={<RequireAuth />}>
+            <Route path="profile" element={<Profile />} />
             <Route path="editor" element={<Editor />} />
             <Route path="editor/:slug" element={<Editor />} />
             <Route path="settings" element={<Settings />} />

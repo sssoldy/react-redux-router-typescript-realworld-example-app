@@ -26,7 +26,7 @@ axios.defaults.baseURL = 'https://api.realworld.io/api/'
 axios.interceptors.request.use(function (config) {
   if (!config.headers) config.headers = {}
 
-  const token = store.getState().session.token
+  const token = store.getState().user.user?.token
 
   if (token) config.headers.Authorization = `Token ${token}`
 
@@ -36,12 +36,17 @@ axios.interceptors.request.use(function (config) {
 // User and Authentication
 export const Auth = {
   login: async (loginUser: ILoginReq) =>
-    await axios.post<IUserRes>('users/login', loginUser),
+    await axios.post('users/login', loginUser),
 
   register: async (registerUser: IRegisterUserReq) =>
     await axios.post<IUserRes>('users', registerUser),
 
-  current: async () => await axios.get<IUserRes>('/user'),
+  current: async (token: string) =>
+    await axios.get<IUserRes>('/user', {
+      headers: {
+        authorization: `Token ${token}`,
+      },
+    }),
 
   update: async (user: IUpdateUserReq) =>
     await axios.put<IUserRes>('user', user),

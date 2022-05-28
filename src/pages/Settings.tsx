@@ -1,15 +1,16 @@
 import * as React from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAppDispatch, useAppSelector } from '../app/hooks'
-import { tokenAdded, tokenRemoved } from '../app/slices/sessionSlice'
 import {
   loggedOut,
-  resetUpdateStatus,
+  resetUserCurrentStatus,
+  resetUserCurrentError,
   selectUser,
   selectUserUpdateError,
   selectUserUpdateStatus,
   updateUser,
 } from '../app/slices/userSlice'
+import ErrorList from '../components/ErrorList/ErrorList'
 import { IUpdateUser, IUser } from '../types/user'
 
 const Settings: React.FC = () => {
@@ -44,18 +45,22 @@ const Settings: React.FC = () => {
   }
 
   const onLogoutClicked = () => {
-    dispatch(tokenRemoved())
     dispatch(loggedOut())
     navigate('/', { replace: true })
   }
 
   React.useEffect(() => {
     if (status === 'successed') {
-      dispatch(resetUpdateStatus())
-      dispatch(tokenAdded(user.token))
-      navigate(`/profile/${user.username}`, { replace: true })
+      dispatch(resetUserCurrentStatus())
+      navigate('/profile', { replace: true })
     }
-  }, [dispatch, navigate, status, user.token, user.username])
+  }, [dispatch, navigate, status])
+
+  React.useEffect(() => {
+    return () => {
+      dispatch(resetUserCurrentError())
+    }
+  }, [dispatch])
 
   return (
     <div className="settings-page">
@@ -64,11 +69,7 @@ const Settings: React.FC = () => {
           <div className="col-md-6 offset-md-3 col-xs-12">
             <h1 className="text-xs-center">Your Settings</h1>
 
-            {error && (
-              <ul className="error-messages">
-                <li>{error}</li>
-              </ul>
-            )}
+            <ErrorList error={error} />
 
             <form onSubmit={e => onFormSubmitted(e)}>
               <fieldset disabled={status === 'loading'}>

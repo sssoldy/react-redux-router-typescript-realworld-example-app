@@ -1,18 +1,15 @@
 import * as React from 'react'
 import { useAppSelector } from '../../app/hooks'
-import { selectSessionToken } from '../../app/slices/sessionSlice'
-import { selectUser, selectUserStatus } from '../../app/slices/userSlice'
+import { selectUser } from '../../app/slices/userSlice'
 import { userFallbackData } from '../../utils/fallbackData'
 import NavItem from './NavItem'
 
 // prettier-ignore
 const NavList: React.FC = () => {
   let user = useAppSelector(selectUser)
-  const status = useAppSelector(selectUserStatus)
-  const token = useAppSelector(selectSessionToken)
 
   // TODO: Refactor it
-  if (status !== 'successed' && token) {
+  if (!user) {
     user = userFallbackData
   }
 
@@ -20,7 +17,7 @@ const NavList: React.FC = () => {
     <React.Fragment>
       <NavItem to="/editor" icon="ion-compose">&nbsp;New Article</NavItem>
       <NavItem to="/settings" icon="ion-gear-a">&nbsp;Settings</NavItem>
-      <NavItem to={`/profile/${user.username}`} user={user}>{user.username}</NavItem>
+      <NavItem to="/profile" user={user}>{user.username}</NavItem>
     </React.Fragment>
   )
 

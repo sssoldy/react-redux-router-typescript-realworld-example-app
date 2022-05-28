@@ -6,90 +6,83 @@ import {
   isRejected,
 } from '@reduxjs/toolkit'
 import { Auth } from '../../services/conduit'
-import { IGenericResError } from '../../types/error'
+import { IResError } from '../../types/error'
 import {
   ILoginReq,
   IRegisterUserReq,
   IUpdateUser,
-  IUser,
   IUserRes,
+  IUserState,
 } from '../../types/user'
+import { getErrorConfig } from '../../utils/misc'
 import { RootState } from '../store'
 
 export const loginUser = createAsyncThunk<
   IUserRes,
   ILoginReq,
-  { rejectValue: IGenericResError; rejectedMeta: IGenericResError }
+  { rejectValue: IResError; rejectedMeta: IResError }
 >('user/loginUser', async (loginData, { rejectWithValue }) => {
   try {
     const { data } = await Auth.login(loginData)
     return data
   } catch (error: any) {
-    if (!error.response) throw error
-    return rejectWithValue(error.response.data, error.response.data)
+    const resError = getErrorConfig(error)
+    if (!resError) throw error
+    throw rejectWithValue(resError, resError)
   }
 })
 
 export const registerUser = createAsyncThunk<
   IUserRes,
   IRegisterUserReq,
-  { rejectValue: IGenericResError; rejectedMeta: IGenericResError }
+  { rejectValue: IResError; rejectedMeta: IResError }
 >('user/registerUser', async (registerData, { rejectWithValue }) => {
   try {
     const { data } = await Auth.register(registerData)
     return data
   } catch (error: any) {
-    if (!error.response) throw error
-    return rejectWithValue(error.response.data, error.response.data)
+    const resError = getErrorConfig(error)
+    if (!resError) throw error
+    throw rejectWithValue(resError, resError)
   }
 })
 
 export const getCurrentUser = createAsyncThunk<
   IUserRes,
-  void,
-  { rejectValue: IGenericResError; rejectedMeta: IGenericResError }
->('user/getCurrentUser', async (_, { rejectWithValue }) => {
+  string,
+  { rejectValue: IResError; rejectedMeta: IResError }
+>('user/getCurrentUser', async (token, { rejectWithValue }) => {
   try {
-    const { data } = await Auth.current()
+    const { data } = await Auth.current(token)
     return data
   } catch (error: any) {
-    if (!error.response) throw error
-    return rejectWithValue(error.response.data, error.response.data)
+    const resError = getErrorConfig(error)
+    if (!resError) throw error
+    throw rejectWithValue(resError, resError)
   }
 })
 
-// TODO: Rewrite to handle IGenericResError
-// TODO: Add ErrorBoundary
 export const updateUser = createAsyncThunk<
   IUserRes,
   IUpdateUser,
-  { rejectValue: string; rejectedMeta: { error: string } }
+  { rejectValue: IResError; rejectedMeta: IResError }
 >('user/updateUser', async (updateData, { rejectWithValue }) => {
   try {
     const { data } = await Auth.update({ user: updateData })
     return data
   } catch (error: any) {
-    if (!error.response) throw error
-    return rejectWithValue(error.response.data, { error: error.response.data })
+    const resError = getErrorConfig(error)
+    if (!resError) throw error
+    throw rejectWithValue(resError, resError)
   }
 })
 
-type resStatus = 'idle' | 'loading' | 'failed' | 'successed'
-
-interface IUserState {
-  user: IUser | null
-  status: resStatus
-  errors: IGenericResError | null
-  updateStatus: resStatus
-  updateError: string | null
-}
-
 const initialState: IUserState = {
   user: null,
-  status: 'idle',
-  errors: null,
-  updateStatus: 'idle',
-  updateError: null,
+  initStatus: 'idle',
+  currentStatus: 'idle',
+  initError: null,
+  currentError: null,
 }
 
 const userSlice = createSlice({
@@ -100,40 +93,46 @@ const userSlice = createSlice({
       localStorage.removeItem('jwt')
       return initialState
     },
-    resetUpdateStatus: state => {
-      state.updateStatus = 'idle'
+    resetUserCurrentStatus: state => {
+      state.currentStatus = 'idle'
+    },
+    resetUserCurrentError: state => {
+      state.currentError = null
+    },
+    resetUserInitError: state => {
+      state.initError = null
     },
   },
   extraReducers: builder => {
     builder
-      .addCase(updateUser.pending, (state, action) => {
-        state.updateStatus = 'loading'
+      .addCase(getCurrentUser.pending, state => {
+        state.initStatus = 'loading'
       })
-      .addCase(updateUser.rejected, (state, action) => {
-        state.updateStatus = 'failed'
-        state.updateError = action.payload ?? null
+      .addCase(getCurrentUser.rejected, (state, action) => {
+        state.initStatus = 'failed'
+        state.initError = action.payload ?? null
       })
-      .addCase(updateUser.fulfilled, (state, action) => {
-        state.updateStatus = 'successed'
-        state.updateError = null
+      .addCase(getCurrentUser.fulfilled, (state, action) => {
+        state.initStatus = 'successed'
+        state.initError = null
         localStorage.setItem('jwt', action.payload.user.token)
         state.user = action.payload.user
       })
-      .addMatcher(isPending(loginUser, registerUser, getCurrentUser), state => {
-        state.status = 'loading'
+      .addMatcher(isPending(loginUser, registerUser, updateUser), state => {
+        state.currentStatus = 'loading'
       })
       .addMatcher(
-        isRejected(loginUser, registerUser, getCurrentUser),
+        isRejected(loginUser, registerUser, updateUser),
         (state, action) => {
-          state.status = 'failed'
-          state.errors = action.payload ?? null
+          state.currentStatus = 'failed'
+          state.currentError = action.payload ?? null
         },
       )
       .addMatcher(
-        isFulfilled(loginUser, registerUser, getCurrentUser),
+        isFulfilled(loginUser, registerUser, updateUser),
         (state, action) => {
-          state.status = 'successed'
-          state.errors = null
+          state.currentStatus = 'successed'
+          state.currentError = null
           localStorage.setItem('jwt', action.payload.user.token)
           state.user = action.payload.user
         },
@@ -141,15 +140,22 @@ const userSlice = createSlice({
   },
 })
 
-export const { loggedOut, resetUpdateStatus } = userSlice.actions
+export const {
+  loggedOut,
+  resetUserCurrentStatus,
+  resetUserInitError,
+  resetUserCurrentError,
+} = userSlice.actions
 
 export const selectUser = (state: RootState) => state.user.user
 export const selectUserToken = (state: RootState) => state.user.user?.token
-export const selectUserStatus = (state: RootState) => state.user.status
-export const selectUserErrors = (state: RootState) => state.user.errors
-export const selectUserUpdateStatus = (state: RootState) =>
-  state.user.updateStatus
+
+export const selectUserInitError = (state: RootState) => state.user.initError
 export const selectUserUpdateError = (state: RootState) =>
-  state.user.updateError
+  state.user.currentError
+
+export const selectUserInitStatus = (state: RootState) => state.user.initStatus
+export const selectUserUpdateStatus = (state: RootState) =>
+  state.user.currentStatus
 
 export default userSlice.reducer

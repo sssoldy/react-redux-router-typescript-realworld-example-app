@@ -10,6 +10,7 @@ const RequireAuth: React.FC = () => {
   const from: IFromState = { from: location }
 
   if (!auth) {
+    console.log('RequireAuth')
     return <Navigate to="/login" state={from} replace />
   }
 

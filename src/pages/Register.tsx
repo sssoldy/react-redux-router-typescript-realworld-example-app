@@ -3,8 +3,10 @@ import { useNavigate } from 'react-router-dom'
 import { useAppDispatch, useAppSelector } from '../app/hooks'
 import {
   registerUser,
-  selectUserErrors,
-  selectUserStatus,
+  resetUserCurrentStatus,
+  resetUserCurrentError,
+  selectUserUpdateError,
+  selectUserUpdateStatus,
 } from '../app/slices/userSlice'
 import ErrorList from '../components/ErrorList/ErrorList'
 import { useLocationState } from '../hooks/useLocationState'
@@ -19,8 +21,8 @@ const Register: React.FC = () => {
     password: '',
   })
   const { username, email, password } = formData
-  const status = useAppSelector(selectUserStatus)
-  const errors = useAppSelector(selectUserErrors)
+  const status = useAppSelector(selectUserUpdateStatus)
+  const error = useAppSelector(selectUserUpdateError)
   const locationState = useLocationState<IFromState>()
   const from = locationState?.from?.pathname || '/'
 
@@ -41,8 +43,17 @@ const Register: React.FC = () => {
   }
 
   React.useEffect(() => {
-    if (status === 'successed') navigate(from, { replace: true })
-  }, [from, navigate, status])
+    if (status === 'successed') {
+      navigate(from, { replace: true })
+      dispatch(resetUserCurrentStatus())
+    }
+  }, [dispatch, from, navigate, status])
+
+  React.useEffect(() => {
+    return () => {
+      dispatch(resetUserCurrentError())
+    }
+  }, [dispatch])
 
   return (
     <div className="auth-page">
@@ -54,7 +65,7 @@ const Register: React.FC = () => {
               <a href="/">Have an account?</a>
             </p>
 
-            <ErrorList errors={errors} />
+            <ErrorList error={error} />
 
             <form onSubmit={e => onFormSubmitted(e)}>
               <fieldset disabled={status === 'loading'}>
