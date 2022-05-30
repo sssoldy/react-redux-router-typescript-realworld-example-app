@@ -7,8 +7,8 @@ import {
   selectUserInitStatus,
 } from './app/slices/userSlice'
 import RequireAuth from './components/Auth/RequireAuth'
-import FullPageError from './components/FullPageError/FullPageError'
-import FullPageSpinner from './components/FullPageSpinner/FullPageSpinner'
+import FullPageError from './components/Error/FullPageError'
+import FullPageSpinner from './components/Spinner/FullPageSpinner'
 import Footer from './layouts/Footer'
 import Header from './layouts/Header'
 import Main from './layouts/Main'
@@ -42,13 +42,12 @@ const App: React.FC = () => {
       <Header />
       <Routes>
         <Route path="/" element={<Main />}>
-          <Route index element={<Home />} />
+          <Route path="/" element={<Home />} />
           <Route path="article/:slug" element={<Article />} />
           <Route path="profile/:username" element={<Profile />} />
           <Route path="login" element={<Login />} />
           <Route path="register" element={<Register />} />
           <Route element={<RequireAuth />}>
-            <Route path="profile" element={<Profile />} />
             <Route path="editor" element={<Editor />} />
             <Route path="editor/:slug" element={<Editor />} />
             <Route path="settings" element={<Settings />} />

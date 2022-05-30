@@ -69,8 +69,21 @@ export const Articles = {
   feed: async () =>
     await axios.get<IMultiArticlesRes>('articles/feed?limit=20&offset=0'),
 
+  profile: async (username: string) =>
+    await axios.get<IMultiArticlesRes>(
+      `articles?author=${username}&limit=20&offset=0`,
+    ),
+
+  favorited: async (username: string) =>
+    await axios.get<IMultiArticlesRes>(
+      `articles?favorited=${username}&limit=20&offset=0`,
+    ),
+
+  tag: async (tag: string) =>
+    await axios.get<IMultiArticlesRes>(`articles?tag=${tag}&limit=20&offset=0`),
+
   all: async () =>
-    await axios.get<IMultiArticlesRes>('articles/feed?limit=20&offset=0'),
+    await axios.get<IMultiArticlesRes>('articles?limit=20&offset=0'),
 
   single: async (slug: string) =>
     await axios.get<ISingleArticleRes>(`articles/${slug}`),

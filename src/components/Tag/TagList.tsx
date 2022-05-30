@@ -1,34 +1,26 @@
 import * as React from 'react'
+import { useAppDispatch } from '../../app/hooks'
+import { getTaggedArticles } from '../../app/slices/articlesSlice'
 
-interface TagListProps {}
+interface TagListProps {
+  tags: Array<string>
+}
 
-const TagList: React.FC<TagListProps> = () => {
+const TagList: React.FC<TagListProps> = ({ tags }) => {
+  const dispatch = useAppDispatch()
+
   return (
     <div className="tag-list">
-      <a href="/" className="tag-pill tag-default">
-        programming
-      </a>
-      <a href="/" className="tag-pill tag-default">
-        javascript
-      </a>
-      <a href="/" className="tag-pill tag-default">
-        emberjs
-      </a>
-      <a href="/" className="tag-pill tag-default">
-        angularjs
-      </a>
-      <a href="/" className="tag-pill tag-default">
-        react
-      </a>
-      <a href="/" className="tag-pill tag-default">
-        mean
-      </a>
-      <a href="/" className="tag-pill tag-default">
-        node
-      </a>
-      <a href="/" className="tag-pill tag-default">
-        rails
-      </a>
+      {tags.map(tag => (
+        <button
+          key={tag}
+          style={{ outline: 'none', border: 'none' }}
+          className="tag-pill tag-default"
+          onClick={() => dispatch(getTaggedArticles(tag))}
+        >
+          {tag}
+        </button>
+      ))}
     </div>
   )
 }

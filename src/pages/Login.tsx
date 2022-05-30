@@ -8,7 +8,7 @@ import {
   resetUserCurrentError,
   resetUserCurrentStatus,
 } from '../app/slices/userSlice'
-import ErrorList from '../components/ErrorList/ErrorList'
+import ErrorList from '../components/Error/ErrorList'
 import { useLocationState } from '../hooks/useLocationState'
 import { IFromState } from '../types/locationState'
 import { ILoginUser } from '../types/user'

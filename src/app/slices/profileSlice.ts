@@ -8,17 +8,32 @@ import { RootState } from '../store'
 export const getProfile = createAsyncThunk<
   IProfileRes,
   string,
-  { rejectValue: IResError; rejectedMeta: IResError }
->('profile/getProfile', async (username: string, { rejectWithValue }) => {
-  try {
-    const { data } = await Profile.get(username)
-    return data
-  } catch (error) {
-    const resError = getErrorConfig(error)
-    if (!resError) throw error
-    throw rejectWithValue(resError, resError)
-  }
-})
+  { state: RootState; rejectValue: IResError; rejectedMeta: IResError }
+>(
+  'profile/getProfile',
+  async (username: string, { getState, rejectWithValue }) => {
+    const user = getState().user.user
+    if (username === user?.username) {
+      return {
+        profile: {
+          username: user.username,
+          bio: user.bio,
+          image: user.image,
+          following: false,
+        },
+      }
+    }
+
+    try {
+      const { data } = await Profile.get(username)
+      return data
+    } catch (error) {
+      const resError = getErrorConfig(error)
+      if (!resError) throw error
+      throw rejectWithValue(resError, resError)
+    }
+  },
+)
 
 const initialState: IProfileState = {
   profile: null,

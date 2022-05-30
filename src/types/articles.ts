@@ -1,3 +1,5 @@
+import { IResFilter, ResponseFilter, ResponseStatus } from './api'
+import { IResError } from './error'
 import { IProfile } from './profile'
 
 export interface IArticle {
@@ -41,4 +43,10 @@ export interface IUpdateArticle {
 
 export interface IUpdateArticleReq {
   article: IUpdateArticle
+}
+
+export interface IArticlesState {
+  status: ResponseStatus
+  error: IResError | null
+  filter: IResFilter
 }

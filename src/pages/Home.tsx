@@ -1,7 +1,8 @@
 import * as React from 'react'
 import ArticleList from '../components/Article/ArticleList'
-import FeedSwitch from '../components/FeedSwitch/FeedSwitch'
+import ArticleFilter from '../components/Article/ArticleFilter'
 import TagList from '../components/Tag/TagList'
+import PopularTags from '../components/Tag/PopularTags'
 
 const Home: React.FC = () => {
   return (
@@ -16,14 +17,14 @@ const Home: React.FC = () => {
       <div className="container page">
         <div className="row">
           <div className="col-md-9">
-            <FeedSwitch />
+            <ArticleFilter />
             <ArticleList />
           </div>
 
           <div className="col-md-3">
             <div className="sidebar">
               <p>Popular Tags</p>
-              <TagList />
+              <PopularTags />
             </div>
           </div>
         </div>

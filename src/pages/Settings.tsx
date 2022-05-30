@@ -10,7 +10,7 @@ import {
   selectUserUpdateStatus,
   updateUser,
 } from '../app/slices/userSlice'
-import ErrorList from '../components/ErrorList/ErrorList'
+import ErrorList from '../components/Error/ErrorList'
 import { IUpdateUser, IUser } from '../types/user'
 
 const Settings: React.FC = () => {
@@ -52,9 +52,9 @@ const Settings: React.FC = () => {
   React.useEffect(() => {
     if (status === 'successed') {
       dispatch(resetUserCurrentStatus())
-      navigate('/profile', { replace: true })
+      navigate(`/profile/${user.username}`, { replace: true })
     }
-  }, [dispatch, navigate, status])
+  }, [dispatch, navigate, status, user.username])
 
   React.useEffect(() => {
     return () => {

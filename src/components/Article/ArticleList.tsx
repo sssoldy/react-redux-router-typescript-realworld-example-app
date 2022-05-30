@@ -1,53 +1,50 @@
 import * as React from 'react'
+import { useAppDispatch, useAppSelector } from '../../app/hooks'
+import {
+  selectArticlesIds,
+  selectArticlesStatus,
+  selectArticlesError,
+  getProfileArticles,
+  getUserFeedArticles,
+  getAllArticles,
+} from '../../app/slices/articlesSlice'
+import { useLocationFilter } from '../../hooks/useLocationFilter'
+import ErrorList from '../Error/ErrorList'
+import Spinner from '../Spinner/Spinner'
+import ArticlePreview from './ArticlePreview'
 
 const ArticleList: React.FC = () => {
+  const articleIds = useAppSelector(selectArticlesIds)
+  const status = useAppSelector(selectArticlesStatus)
+  const error = useAppSelector(selectArticlesError)
+  const { username, user, isHome } = useLocationFilter()
+
+  const dispatch = useAppDispatch()
+
+  React.useEffect(() => {
+    if (user && isHome) {
+      dispatch(getUserFeedArticles())
+      return
+    }
+    if (isHome) {
+      dispatch(getAllArticles())
+      return
+    }
+    if (username) {
+      dispatch(getProfileArticles(username))
+      return
+    }
+  }, [dispatch, isHome, user, username])
+
+  if (status === 'loading') return <Spinner />
+  if (status === 'failed') return <ErrorList error={error} />
+  if (!articleIds.length) return <div>No articles are here... yet.</div>
+
   return (
     <React.Fragment>
-      <div className="article-preview">
-        <div className="article-meta">
-          <a href="/profile.html">
-            <img src="http://i.imgur.com/Qr71crq.jpg" alt="placeholder" />
-          </a>
-          <div className="info">
-            <a href="/" className="author">
-              Eric Simons
-            </a>
-            <span className="date">January 20th</span>
-          </div>
-          <button className="btn btn-outline-primary btn-sm pull-xs-right">
-            <i className="ion-heart"></i> 29
-          </button>
-        </div>
-        <a href="/" className="preview-link">
-          <h1>How to build webapps that scale</h1>
-          <p>This is the description for the post.</p>
-          <span>Read more...</span>
-        </a>
-      </div>
-
-      <div className="article-preview">
-        <div className="article-meta">
-          <a href="/profile.html">
-            <img src="http://i.imgur.com/N4VcUeJ.jpg" alt="placeholder" />
-          </a>
-          <div className="info">
-            <a href="/" className="author">
-              Albert Pai
-            </a>
-            <span className="date">January 20th</span>
-          </div>
-          <button className="btn btn-outline-primary btn-sm pull-xs-right">
-            <i className="ion-heart"></i> 32
-          </button>
-        </div>
-        <a href="/" className="preview-link">
-          <h1>
-            The song you won't ever stop singing. No matter how hard you try.
-          </h1>
-          <p>This is the description for the post.</p>
-          <span>Read more...</span>
-        </a>
-      </div>
+      {articleIds.map(id => (
+        <ArticlePreview key={id} id={id} />
+      ))}
     </React.Fragment>
   )
 }

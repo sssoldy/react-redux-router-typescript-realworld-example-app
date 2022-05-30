@@ -1,23 +1,17 @@
 import * as React from 'react'
 import { useAppSelector } from '../../app/hooks'
 import { selectUser } from '../../app/slices/userSlice'
-import { userFallbackData } from '../../utils/fallbackData'
 import NavItem from './NavItem'
 
 // prettier-ignore
 const NavList: React.FC = () => {
-  let user = useAppSelector(selectUser)
-
-  // TODO: Refactor it
-  if (!user) {
-    user = userFallbackData
-  }
+  const user = useAppSelector(selectUser)
 
   const loggenInItems = user && (
     <React.Fragment>
       <NavItem to="/editor" icon="ion-compose">&nbsp;New Article</NavItem>
       <NavItem to="/settings" icon="ion-gear-a">&nbsp;Settings</NavItem>
-      <NavItem to="/profile" user={user}>{user.username}</NavItem>
+      <NavItem to={`/profile/${user.username}`} user={user}>{user.username}</NavItem>
     </React.Fragment>
   )
 

@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { IResError } from '../../types/error'
-import ErrorList from '../ErrorList/ErrorList'
+import ErrorList from './ErrorList'
 import './FullPageError.css'
 
 interface FullPageErrorProps {
