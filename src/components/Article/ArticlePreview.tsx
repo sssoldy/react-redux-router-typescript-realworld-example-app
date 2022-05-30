@@ -23,7 +23,7 @@ const ArticlePreview: React.FC<ArticlePreviewProps> = ({ id }) => {
 
   const { author } = article
   const isFavorited = article.favorited
-  const favorited = isFavorited ? 'btn-primary' : 'btn-outline-primary'
+  const favoriteClass = isFavorited ? 'btn-primary' : 'btn-outline-primary'
 
   const onFavoriteClicked = () => {
     isFavorited
@@ -44,7 +44,7 @@ const ArticlePreview: React.FC<ArticlePreviewProps> = ({ id }) => {
           <span className="date">{formatDate(article.createdAt)}</span>
         </div>
         <button
-          className={`btn btn-sm pull-xs-right ${favorited}`}
+          className={`btn btn-sm pull-xs-right ${favoriteClass}`}
           onClick={onFavoriteClicked}
         >
           <i className="ion-heart"></i> {article.favoritesCount}

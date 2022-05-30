@@ -6,6 +6,8 @@ import {
   selectProfileStatus,
   selectProfileError,
   getProfile,
+  followProfile,
+  unfollowProfile,
 } from '../../app/slices/profileSlice'
 import { selectUser } from '../../app/slices/userSlice'
 import { profileFallbackData } from '../../utils/fallbackData'
@@ -17,6 +19,8 @@ const ProfileInfo: React.FC = () => {
   const error = useAppSelector(selectProfileError)
   const user = useAppSelector(selectUser)
   const isUser = profile?.username === user?.username
+  const isFollowing = profile?.following
+  const followClass = isFollowing ? 'btn-secondary' : 'btn-outline-secondary'
 
   const { username } = useParams()
 
@@ -27,6 +31,13 @@ const ProfileInfo: React.FC = () => {
       dispatch(getProfile(username))
     }
   }, [dispatch, username])
+
+  const onFollowClicked = () => {
+    if (!profile) return
+    isFollowing
+      ? dispatch(unfollowProfile(profile.username))
+      : dispatch(followProfile(profile.username))
+  }
 
   if (status === 'loading') profile = profileFallbackData
   if (status === 'failed') return <ErrorList error={error} />
@@ -40,6 +51,8 @@ const ProfileInfo: React.FC = () => {
             <img
               src={profile.image}
               className="user-pic"
+              width={128}
+              height={128}
               alt={profile.username}
             />
             <h4>{profile.username}</h4>
@@ -52,9 +65,17 @@ const ProfileInfo: React.FC = () => {
                 </button>
               </Link>
             ) : (
-              <button className="btn btn-sm btn-outline-secondary action-btn">
-                <i className="ion-plus-round"></i>
-                &nbsp; Follow {profile.username}
+              <button
+                className={`btn btn-sm action-btn ${followClass}`}
+                onClick={onFollowClicked}
+              >
+                {isFollowing ? (
+                  <i className="ion-minus-round"></i>
+                ) : (
+                  <i className="ion-plus-round"></i>
+                )}
+                {isFollowing ? ' Unfollow ' : ' Follow '}
+                {profile.username}
               </button>
             )}
           </div>
