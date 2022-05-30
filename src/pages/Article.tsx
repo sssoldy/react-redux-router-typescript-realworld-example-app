@@ -1,31 +1,73 @@
 import * as React from 'react'
+import { useParams } from 'react-router-dom'
+import { useAppDispatch, useAppSelector } from '../app/hooks'
+import {
+  favoriteArticleSingle,
+  getArticle,
+  selectActicleStatus,
+  selectArticle,
+  selectArticleError,
+  unfavoriteArticleSingle,
+} from '../app/slices/articleSlice'
+import ErrorList from '../components/Error/ErrorList'
+import Spinner from '../components/Spinner/Spinner'
+import FavoriteButton from '../components/UI/FavoriteButton'
+import FollowButton from '../components/UI/FollowButton'
+import UserMeta from '../components/UI/UserMeta'
 
 const Article: React.FC = () => {
+  const article = useAppSelector(selectArticle)
+  const status = useAppSelector(selectActicleStatus)
+  const error = useAppSelector(selectArticleError)
+  const isFollowing = article?.author.following || false
+  const isFavorited = article?.favorited || false
+  const { slug } = useParams()
+
+  const dispatch = useAppDispatch()
+
+  React.useEffect(() => {
+    if (!slug) return
+    dispatch(getArticle(slug))
+  }, [dispatch, slug])
+
+  const onFollowClicked = () => {
+    if (!article) return
+    isFollowing
+      ? console.log(article.author.following)
+      : console.log(article.author.following)
+  }
+
+  const onFavoriteClicked = () => {
+    if (!article) return
+    isFavorited
+      ? dispatch(unfavoriteArticleSingle(article.slug))
+      : dispatch(favoriteArticleSingle(article.slug))
+  }
+
+  if (status === 'loading') return <Spinner />
+  if (status === 'failed') return <ErrorList error={error} />
+  if (!article) return <div>No article is here... yet.</div>
+
+  const { author } = article
+
   return (
     <div className="article-page">
       <div className="banner">
         <div className="container">
-          <h1>How to build webapps that scale</h1>
+          <h1>{article.title}</h1>
 
           <div className="article-meta">
-            <a href="/">
-              <img src="http://i.imgur.com/Qr71crq.jpg" alt="placeholder" />
-            </a>
-            <div className="info">
-              <a href="/" className="author">
-                Eric Simons
-              </a>
-              <span className="date">January 20th</span>
-            </div>
-            <button className="btn btn-sm btn-outline-secondary">
-              <i className="ion-plus-round"></i>
-              &nbsp; Follow Eric Simons <span className="counter">(10)</span>
-            </button>
+            <UserMeta article={article} />
+            <FollowButton isFollowing={isFollowing} onClick={onFollowClicked}>
+              {author.username}
+            </FollowButton>
             &nbsp;&nbsp;
-            <button className="btn btn-sm btn-outline-primary">
-              <i className="ion-heart"></i>
-              &nbsp; Favorite Post <span className="counter">(29)</span>
-            </button>
+            <FavoriteButton
+              isFavorite={isFavorited}
+              onClick={onFavoriteClicked}
+            >
+              Favorite Post ({article.favoritesCount})
+            </FavoriteButton>
           </div>
         </div>
       </div>
@@ -33,12 +75,7 @@ const Article: React.FC = () => {
       <div className="container page">
         <div className="row article-content">
           <div className="col-md-12">
-            <p>
-              Web development technologies have evolved at an incredible clip
-              over the past few years.
-            </p>
-            <h2 id="introducing-ionic">Introducing RealWorld.</h2>
-            <p>It's a great solution for learning how other frameworks work.</p>
+            <p>{article.body}</p>
           </div>
         </div>
 
@@ -46,28 +83,21 @@ const Article: React.FC = () => {
 
         <div className="article-actions">
           <div className="article-meta">
-            <a href="profile.html">
-              <img src="http://i.imgur.com/Qr71crq.jpg" alt="placeholder" />
-            </a>
-            <div className="info">
-              <a href="/" className="author">
-                Eric Simons
-              </a>
-              <span className="date">January 20th</span>
-            </div>
-            <button className="btn btn-sm btn-outline-secondary">
-              <i className="ion-plus-round"></i>
-              &nbsp; Follow Eric Simons
-            </button>
-            &nbsp;
-            <button className="btn btn-sm btn-outline-primary">
-              <i className="ion-heart"></i>
-              &nbsp; Favorite Post <span className="counter">(29)</span>
-            </button>
+            <UserMeta article={article} />
+            <FollowButton onClick={onFollowClicked} isFollowing={isFollowing}>
+              {author.username}
+            </FollowButton>
+            &nbsp;&nbsp;
+            <FavoriteButton
+              isFavorite={isFavorited}
+              onClick={onFavoriteClicked}
+            >
+              Favorite Post ({article.favoritesCount})
+            </FavoriteButton>
           </div>
         </div>
 
-        <div className="row">
+        {/* <div className="row">
           <div className="col-xs-12 col-md-8 offset-md-2">
             <form className="card comment-form">
               <div className="card-block">
@@ -137,7 +167,7 @@ const Article: React.FC = () => {
               </div>
             </div>
           </div>
-        </div>
+        </div> */}
       </div>
     </div>
   )

@@ -8,7 +8,8 @@ import {
   selectArticleById,
   unfavoriteArticle,
 } from '../../app/slices/articlesSlice'
-import { formatDate } from '../../utils/misc'
+import FavoriteButton from '../UI/FavoriteButton'
+import UserMeta from '../UI/UserMeta'
 
 interface ArticlePreviewProps {
   id: EntityId
@@ -21,9 +22,7 @@ const ArticlePreview: React.FC<ArticlePreviewProps> = ({ id }) => {
 
   if (!article) return null
 
-  const { author } = article
   const isFavorited = article.favorited
-  const favoriteClass = isFavorited ? 'btn-primary' : 'btn-outline-primary'
 
   const onFavoriteClicked = () => {
     isFavorited
@@ -34,21 +33,14 @@ const ArticlePreview: React.FC<ArticlePreviewProps> = ({ id }) => {
   return (
     <div className="article-preview">
       <div className="article-meta">
-        <Link to={`/profile/${author.username}`}>
-          <img src={author.image} alt={author.username} />
-        </Link>
-        <div className="info">
-          <Link to={`/profile/${author.username}`} className="author">
-            {author.username}
-          </Link>
-          <span className="date">{formatDate(article.createdAt)}</span>
-        </div>
-        <button
-          className={`btn btn-sm pull-xs-right ${favoriteClass}`}
+        <UserMeta article={article} />
+        <FavoriteButton
+          className="pull-xs-right"
+          isFavorite={isFavorited}
           onClick={onFavoriteClicked}
         >
-          <i className="ion-heart"></i> {article.favoritesCount}
-        </button>
+          {article.favoritesCount}
+        </FavoriteButton>
       </div>
       <Link to={`/article/${article.slug}`} className="preview-link">
         <h1>{article.title}</h1>
