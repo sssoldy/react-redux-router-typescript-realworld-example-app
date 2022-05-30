@@ -1,7 +1,6 @@
 import * as React from 'react'
 import ArticleList from '../components/Article/ArticleList'
 import ArticleFilter from '../components/Article/ArticleFilter'
-import TagList from '../components/Tag/TagList'
 import PopularTags from '../components/Tag/PopularTags'
 
 const Home: React.FC = () => {

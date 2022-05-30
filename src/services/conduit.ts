@@ -115,7 +115,7 @@ export const Faforites = {
     await axios.post<ISingleArticleRes>(`articles/${slug}/favorite`),
 
   remove: async (slug: string) =>
-    await axios.delete(`articles/${slug}/favorite`),
+    await axios.delete<ISingleArticleRes>(`articles/${slug}/favorite`),
 }
 
 // Tags

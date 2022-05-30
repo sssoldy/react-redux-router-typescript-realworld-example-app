@@ -1,8 +1,13 @@
 import { EntityId } from '@reduxjs/toolkit'
 import * as React from 'react'
 import { Link } from 'react-router-dom'
-import { useAppSelector } from '../../app/hooks'
-import { selectArticleById } from '../../app/slices/articlesSlice'
+import { useAppDispatch, useAppSelector } from '../../app/hooks'
+
+import {
+  favoriteArticle,
+  selectArticleById,
+  unfavoriteArticle,
+} from '../../app/slices/articlesSlice'
 import { formatDate } from '../../utils/misc'
 
 interface ArticlePreviewProps {
@@ -12,9 +17,19 @@ interface ArticlePreviewProps {
 const ArticlePreview: React.FC<ArticlePreviewProps> = ({ id }) => {
   const article = useAppSelector(state => selectArticleById(state, id))
 
+  const dispatch = useAppDispatch()
+
   if (!article) return null
 
   const { author } = article
+  const isFavorited = article.favorited
+  const favorited = isFavorited ? 'btn-primary' : 'btn-outline-primary'
+
+  const onFavoriteClicked = () => {
+    isFavorited
+      ? dispatch(unfavoriteArticle(article.slug))
+      : dispatch(favoriteArticle(article.slug))
+  }
 
   return (
     <div className="article-preview">
@@ -28,7 +43,10 @@ const ArticlePreview: React.FC<ArticlePreviewProps> = ({ id }) => {
           </Link>
           <span className="date">{formatDate(article.createdAt)}</span>
         </div>
-        <button className="btn btn-outline-primary btn-sm pull-xs-right">
+        <button
+          className={`btn btn-sm pull-xs-right ${favorited}`}
+          onClick={onFavoriteClicked}
+        >
           <i className="ion-heart"></i> {article.favoritesCount}
         </button>
       </div>
