@@ -8,7 +8,7 @@ import {
 } from '../types/articles'
 import {
   IMultiCommentsRes,
-  INewComment,
+  INewCommentReq,
   ISingleCommentRes,
 } from '../types/comments'
 import { IProfileRes } from '../types/profile'
@@ -104,8 +104,11 @@ export const Comments = {
   all: async (slug: string) =>
     await axios.get<IMultiCommentsRes>(`articles/${slug}/comments`),
 
-  add: async (slug: string, comment: INewComment) =>
-    await axios.post<ISingleCommentRes>(`articles/${slug}/comments`, comment),
+  add: async (commentReqData: INewCommentReq) =>
+    await axios.post<ISingleCommentRes>(
+      `articles/${commentReqData.slug}/comments`,
+      { comment: commentReqData.comment },
+    ),
 
   delete: async (slug: string, id: number) =>
     await axios.delete(`articles/${slug}/comments/${id}`),

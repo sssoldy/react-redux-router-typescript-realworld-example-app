@@ -1,3 +1,5 @@
+import { ResponseStatus } from './api'
+import { IResError } from './error'
 import { IProfile } from './profile'
 
 export interface IComment {
@@ -21,5 +23,11 @@ export interface INewComment {
 }
 
 export interface INewCommentReq {
+  slug: string
   comment: INewComment
+}
+
+export interface ICommentsState {
+  status: ResponseStatus
+  error: IResError | null
 }
