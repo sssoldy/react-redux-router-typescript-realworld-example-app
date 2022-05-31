@@ -91,8 +91,10 @@ export const Articles = {
   add: async (article: INewArticleReq) =>
     await axios.post<ISingleArticleRes>('articles', article),
 
-  update: async (slug: string, article: IUpdateArticleReq) =>
-    await axios.put<ISingleArticleRes>(`articles/${slug}`, article),
+  update: async (articleReqData: IUpdateArticleReq) =>
+    await axios.put<ISingleArticleRes>(`articles/${articleReqData.slug}`, {
+      article: articleReqData.article,
+    }),
 
   del: async (slug: string) => await axios.delete(`articles/${slug}`),
 }

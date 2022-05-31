@@ -13,13 +13,13 @@ const FollowButton: React.FC<FollowButtonProps> = ({
   ...props
 }) => {
   const followBtn = (
-    <Button className="btn-secondary" icon="ion-plus-round" {...props}>
+    <Button className="btn-outline-secondary" icon="ion-plus-round" {...props}>
       Follow {children}
     </Button>
   )
 
   const unFollowBtn = (
-    <Button className="btn-outline-secondary" icon="ion-minus-round" {...props}>
+    <Button className="btn-secondary" icon="ion-minus-round" {...props}>
       Unfollow {children}
     </Button>
   )

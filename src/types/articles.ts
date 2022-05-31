@@ -36,12 +36,14 @@ export interface INewArticleReq {
 }
 
 export interface IUpdateArticle {
-  title?: string
-  description?: string
-  body?: string
+  title: string
+  description: string
+  body: string
+  tagList?: Array<string>
 }
 
 export interface IUpdateArticleReq {
+  slug: string
   article: IUpdateArticle
 }
 

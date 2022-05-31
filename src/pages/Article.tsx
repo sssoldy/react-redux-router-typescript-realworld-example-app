@@ -1,7 +1,8 @@
 import * as React from 'react'
-import { useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import { useAppDispatch, useAppSelector } from '../app/hooks'
 import {
+  deleteArticle,
   favoriteArticleSingle,
   getArticle,
   selectActicleStatus,
@@ -9,21 +10,30 @@ import {
   selectArticleError,
   unfavoriteArticleSingle,
 } from '../app/slices/articleSlice'
+import { selectUsername } from '../app/slices/userSlice'
 import ErrorList from '../components/Error/ErrorList'
 import Spinner from '../components/Spinner/Spinner'
 import TagList from '../components/Tag/TagList'
+import Button from '../components/UI/Button'
 import FavoriteButton from '../components/UI/FavoriteButton'
 import FollowButton from '../components/UI/FollowButton'
 import UserMeta from '../components/UI/UserMeta'
+import { IEditArticleState } from '../types/locationState'
 
 const Article: React.FC = () => {
   const article = useAppSelector(selectArticle)
   const status = useAppSelector(selectActicleStatus)
   const error = useAppSelector(selectArticleError)
+
   const isFollowing = article?.author.following || false
   const isFavorited = article?.favorited || false
+
+  const username = useAppSelector(selectUsername)
+  const isUserPost = username === article?.author.username
+
   const { slug } = useParams()
 
+  const navigate = useNavigate()
   const dispatch = useAppDispatch()
 
   React.useEffect(() => {
@@ -45,6 +55,27 @@ const Article: React.FC = () => {
       : dispatch(favoriteArticleSingle(article.slug))
   }
 
+  const onEditClicked = () => {
+    if (!article) return
+    const { slug, title, description, body, tagList } = article
+    const state: IEditArticleState = {
+      slug,
+      article: { title, description, body, tagList },
+    }
+    navigate('/editor', { state })
+  }
+
+  const onDeleteClicked = async () => {
+    if (!slug || !username) return
+    try {
+      await dispatch(deleteArticle(slug)).unwrap()
+      navigate(`/profile/${username}`)
+    } catch (error) {
+      // FIXME:
+      console.log(error)
+    }
+  }
+
   if (status === 'loading') return <Spinner />
   if (status === 'failed') return <ErrorList error={error} />
   if (!article) return <div>No article is here... yet.</div>
@@ -59,16 +90,42 @@ const Article: React.FC = () => {
 
           <div className="article-meta">
             <UserMeta article={article} />
-            <FollowButton isFollowing={isFollowing} onClick={onFollowClicked}>
-              {author.username}
-            </FollowButton>
-            &nbsp;&nbsp;
-            <FavoriteButton
-              isFavorite={isFavorited}
-              onClick={onFavoriteClicked}
-            >
-              Favorite Post ({article.favoritesCount})
-            </FavoriteButton>
+            {!isUserPost && (
+              <React.Fragment>
+                <FollowButton
+                  isFollowing={isFollowing}
+                  onClick={onFollowClicked}
+                >
+                  {author.username}
+                </FollowButton>
+                &nbsp;&nbsp;
+                <FavoriteButton
+                  isFavorite={isFavorited}
+                  onClick={onFavoriteClicked}
+                >
+                  Favorite Post ({article.favoritesCount})
+                </FavoriteButton>
+              </React.Fragment>
+            )}
+            {isUserPost && (
+              <React.Fragment>
+                <Button
+                  className="btn-outline-secondary"
+                  icon="ion-edit"
+                  onClick={onEditClicked}
+                >
+                  Edit Article
+                </Button>
+                &nbsp;&nbsp;
+                <Button
+                  className="btn-outline-danger"
+                  icon="ion-edit"
+                  onClick={onDeleteClicked}
+                >
+                  Delete Article
+                </Button>
+              </React.Fragment>
+            )}
           </div>
         </div>
       </div>
@@ -87,9 +144,11 @@ const Article: React.FC = () => {
         <div className="article-actions">
           <div className="article-meta">
             <UserMeta article={article} />
-            <FollowButton onClick={onFollowClicked} isFollowing={isFollowing}>
-              {author.username}
-            </FollowButton>
+            {!isUserPost && (
+              <FollowButton isFollowing={isFollowing} onClick={onFollowClicked}>
+                {author.username}
+              </FollowButton>
+            )}
             &nbsp;&nbsp;
             <FavoriteButton
               isFavorite={isFavorited}

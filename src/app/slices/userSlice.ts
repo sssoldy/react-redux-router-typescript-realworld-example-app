@@ -148,6 +148,7 @@ export const {
 } = userSlice.actions
 
 export const selectUser = (state: RootState) => state.user.user
+export const selectUsername = (state: RootState) => state.user.user?.username
 export const selectUserToken = (state: RootState) => state.user.user?.token
 
 export const selectUserInitError = (state: RootState) => state.user.initError
