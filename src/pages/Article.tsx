@@ -11,6 +11,7 @@ import {
 } from '../app/slices/articleSlice'
 import ErrorList from '../components/Error/ErrorList'
 import Spinner from '../components/Spinner/Spinner'
+import TagList from '../components/Tag/TagList'
 import FavoriteButton from '../components/UI/FavoriteButton'
 import FollowButton from '../components/UI/FollowButton'
 import UserMeta from '../components/UI/UserMeta'
@@ -78,6 +79,8 @@ const Article: React.FC = () => {
             <p>{article.body}</p>
           </div>
         </div>
+
+        <TagList tags={article.tagList} />
 
         <hr />
 

@@ -6,16 +6,35 @@ import {
   isRejected,
 } from '@reduxjs/toolkit'
 import { Articles, Faforites } from '../../services/conduit'
-import { IArticleState } from '../../types/articles'
+import { IArticleState, ISingleArticleRes } from '../../types/articles'
 import { IResError } from '../../types/error'
 import { getErrorConfig } from '../../utils/misc'
 import { RootState } from '../store'
+import { selectArticleById } from './articlesSlice'
 
-export const getArticle = createAsyncThunk(
-  'article/getArticle',
+export const getArticle = createAsyncThunk<
+  ISingleArticleRes,
+  string,
+  { state: RootState; rejectValue: IResError }
+>('article/getArticle', async (slug: string, { getState, rejectWithValue }) => {
+  const article = selectArticleById(getState(), slug)
+  if (article) return { article }
+
+  try {
+    const { data } = await Articles.single(slug)
+    return data
+  } catch (error) {
+    const resError = getErrorConfig(error)
+    if (!resError) throw error
+    throw rejectWithValue(resError)
+  }
+})
+
+export const favoriteArticleSingle = createAsyncThunk(
+  'article/favoriteArticleSingle',
   async (slug: string, { rejectWithValue }) => {
     try {
-      const { data } = await Articles.single(slug)
+      const { data } = await Faforites.add(slug)
       return data
     } catch (error) {
       const resError = getErrorConfig(error)
@@ -25,19 +44,17 @@ export const getArticle = createAsyncThunk(
   },
 )
 
-export const favoriteArticleSingle = createAsyncThunk(
-  'article/favoriteArticleSingle',
-  async (slug: string) => {
-    const { data } = await Faforites.add(slug)
-    return data
-  },
-)
-
 export const unfavoriteArticleSingle = createAsyncThunk(
   'article/unfavoriteArticleSingle',
-  async (slug: string) => {
-    const { data } = await Faforites.remove(slug)
-    return data
+  async (slug: string, { rejectWithValue }) => {
+    try {
+      const { data } = await Faforites.remove(slug)
+      return data
+    } catch (error) {
+      const resError = getErrorConfig(error)
+      if (!resError) throw error
+      throw rejectWithValue(resError)
+    }
   },
 )
 

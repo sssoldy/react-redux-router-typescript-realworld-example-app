@@ -1,6 +1,7 @@
 import {
   createAsyncThunk,
   createEntityAdapter,
+  createSelector,
   createSlice,
   isFulfilled,
   isPending,
@@ -140,20 +141,31 @@ export const getTaggedArticles = createAsyncThunk<
   },
 )
 
-// TODO: add error handler
 export const favoriteArticle = createAsyncThunk(
   'articles/favoriteArticle',
-  async (slug: string) => {
-    const { data } = await Faforites.add(slug)
-    return data.article
+  async (slug: string, { rejectWithValue }) => {
+    try {
+      const { data } = await Faforites.add(slug)
+      return data.article
+    } catch (error) {
+      const resError = getErrorConfig(error)
+      if (!resError) throw error
+      throw rejectWithValue(resError)
+    }
   },
 )
 
 export const unfavoriteArticle = createAsyncThunk(
   'articles/unfavoriteArticle',
-  async (slug: string) => {
-    const { data } = await Faforites.remove(slug)
-    return data.article
+  async (slug: string, { rejectWithValue }) => {
+    try {
+      const { data } = await Faforites.remove(slug)
+      return data.article
+    } catch (error) {
+      const resError = getErrorConfig(error)
+      if (!resError) throw error
+      throw rejectWithValue(resError)
+    }
   },
 )
 
@@ -248,6 +260,12 @@ export const {
   selectById: selectArticleById,
   selectIds: selectArticlesIds,
 } = articlesAdapter.getSelectors((state: RootState) => state.articles)
+
+export const selectArticleByUsername = createSelector(
+  [selectAllArticles, (_, username: string) => username],
+  (articles, username) =>
+    articles.find(article => article.author.username === username),
+)
 
 export const selectArticlesStatus = (state: RootState) => state.articles.status
 export const selectArticlesError = (state: RootState) => state.articles.error

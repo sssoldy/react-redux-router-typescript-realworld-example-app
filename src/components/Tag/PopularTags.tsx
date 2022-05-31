@@ -19,7 +19,7 @@ const PopularTags: React.FC<PopularTagsProps> = () => {
   if (isError) return <ErrorList error={error} />
   if (!data || !data.tags.length) return <div>No tags are here... yet.</div>
 
-  return <TagList tags={data.tags} />
+  return <TagList isFilter={true} tags={data.tags} />
 }
 
 export default PopularTags

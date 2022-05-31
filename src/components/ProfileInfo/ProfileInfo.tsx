@@ -22,7 +22,6 @@ const ProfileInfo: React.FC = () => {
   const user = useAppSelector(selectUser)
   const isUser = profile?.username === user?.username
   const isFollowing = profile?.following ?? false
-  console.log(isFollowing)
 
   const { username } = useParams()
 

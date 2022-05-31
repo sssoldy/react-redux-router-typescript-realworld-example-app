@@ -8,6 +8,7 @@ import {
   selectArticleById,
   unfavoriteArticle,
 } from '../../app/slices/articlesSlice'
+import TagList from '../Tag/TagList'
 import FavoriteButton from '../UI/FavoriteButton'
 import UserMeta from '../UI/UserMeta'
 
@@ -46,6 +47,7 @@ const ArticlePreview: React.FC<ArticlePreviewProps> = ({ id }) => {
         <h1>{article.title}</h1>
         <p>{article.description}</p>
         <span>Read more...</span>
+        <TagList tags={article.tagList} />
       </Link>
     </div>
   )

@@ -7,9 +7,11 @@ import {
 } from '@reduxjs/toolkit'
 import { Profile } from '../../services/conduit'
 import { IResError } from '../../types/error'
-import { IProfileRes, IProfileState } from '../../types/profile'
+import { IProfile, IProfileRes, IProfileState } from '../../types/profile'
+import { IUser } from '../../types/user'
 import { getErrorConfig } from '../../utils/misc'
 import { RootState } from '../store'
+import { selectArticleByUsername } from './articlesSlice'
 
 export const getProfile = createAsyncThunk<
   IProfileRes,
@@ -18,14 +20,21 @@ export const getProfile = createAsyncThunk<
 >(
   'profile/getProfile',
   async (username: string, { getState, rejectWithValue }) => {
-    const user = getState().user.user
+    let user: IUser | IProfile | null = getState().user.user
+
+    if (!user || username !== user?.username) {
+      user = selectArticleByUsername(getState(), username)?.author ?? null
+    }
+
     if (username === user?.username) {
+      const { username, bio, image } = user
+      const following = 'following' in user ? user.following : false
       return {
         profile: {
-          username: user.username,
-          bio: user.bio,
-          image: user.image,
-          following: false,
+          username,
+          bio,
+          image,
+          following,
         },
       }
     }
