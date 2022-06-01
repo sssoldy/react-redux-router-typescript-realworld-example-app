@@ -24,6 +24,7 @@ const Comment: React.FC<CommentProps> = ({ commentId }) => {
 
   const [status, setStatus] = React.useState<ResponseStatus>('idle')
   const [error, setError] = React.useState<IResError | null>(null)
+  const canDelete = status !== 'loading'
 
   const { slug } = useParams()
 
@@ -32,7 +33,7 @@ const Comment: React.FC<CommentProps> = ({ commentId }) => {
   if (!comment) return null
 
   const onDeleteClicked = async () => {
-    if (!slug) return
+    if (!slug || !canDelete) return
     try {
       setStatus('loading')
       setError(null)

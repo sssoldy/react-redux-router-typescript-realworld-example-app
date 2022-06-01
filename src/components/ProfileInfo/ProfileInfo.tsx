@@ -6,8 +6,6 @@ import {
   selectProfileStatus,
   selectProfileError,
   getProfile,
-  followProfile,
-  unfollowProfile,
 } from '../../app/slices/profileSlice'
 import { selectUser } from '../../app/slices/userSlice'
 import { profileFallbackData } from '../../utils/fallbackData'
@@ -21,7 +19,6 @@ const ProfileInfo: React.FC = () => {
   const error = useAppSelector(selectProfileError)
   const user = useAppSelector(selectUser)
   const isUser = profile?.username === user?.username
-  const isFollowing = profile?.following ?? false
 
   const { username } = useParams()
 
@@ -32,13 +29,6 @@ const ProfileInfo: React.FC = () => {
       dispatch(getProfile(username))
     }
   }, [dispatch, username])
-
-  const onFollowClicked = () => {
-    if (!profile) return
-    isFollowing
-      ? dispatch(unfollowProfile(profile.username))
-      : dispatch(followProfile(profile.username))
-  }
 
   if (status === 'loading') profile = profileFallbackData
   if (status === 'failed') return <ErrorList error={error} />
@@ -63,9 +53,7 @@ const ProfileInfo: React.FC = () => {
                 </Button>
               </Link>
             ) : (
-              <FollowButton onClick={onFollowClicked} isFollowing={isFollowing}>
-                {profile.username}
-              </FollowButton>
+              <FollowButton profile={profile} />
             )}
           </div>
         </div>

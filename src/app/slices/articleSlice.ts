@@ -4,6 +4,7 @@ import {
   isFulfilled,
   isPending,
   isRejected,
+  PayloadAction,
 } from '@reduxjs/toolkit'
 import { Articles, Faforites } from '../../services/conduit'
 import {
@@ -13,7 +14,8 @@ import {
   IUpdateArticleReq,
 } from '../../types/articles'
 import { IResError } from '../../types/error'
-import { getErrorConfig } from '../../utils/misc'
+import { IProfile } from '../../types/profile'
+import { getErrorData } from '../../utils/misc'
 import { RootState } from '../store'
 import { selectArticleById } from './articlesSlice'
 
@@ -28,10 +30,8 @@ export const getArticle = createAsyncThunk<
   try {
     const { data } = await Articles.single(slug)
     return data
-  } catch (error) {
-    const resError = getErrorConfig(error)
-    if (!resError) throw error
-    throw rejectWithValue(resError)
+  } catch (error: any) {
+    throw error.response ? rejectWithValue(getErrorData(error)) : error
   }
 })
 
@@ -41,10 +41,8 @@ export const favoriteArticleSingle = createAsyncThunk(
     try {
       const { data } = await Faforites.add(slug)
       return data
-    } catch (error) {
-      const resError = getErrorConfig(error)
-      if (!resError) throw error
-      throw rejectWithValue(resError)
+    } catch (error: any) {
+      throw error.response ? rejectWithValue(getErrorData(error)) : error
     }
   },
 )
@@ -55,10 +53,8 @@ export const unfavoriteArticleSingle = createAsyncThunk(
     try {
       const { data } = await Faforites.remove(slug)
       return data
-    } catch (error) {
-      const resError = getErrorConfig(error)
-      if (!resError) throw error
-      throw rejectWithValue(resError)
+    } catch (error: any) {
+      throw error.response ? rejectWithValue(getErrorData(error)) : error
     }
   },
 )
@@ -69,10 +65,8 @@ export const addNewArticle = createAsyncThunk(
     try {
       const { data } = await Articles.add(articleData)
       return data
-    } catch (error) {
-      const resError = getErrorConfig(error)
-      if (!resError) throw error
-      throw rejectWithValue(resError)
+    } catch (error: any) {
+      throw error.response ? rejectWithValue(getErrorData(error)) : error
     }
   },
 )
@@ -83,10 +77,8 @@ export const updateArticle = createAsyncThunk(
     try {
       const { data } = await Articles.update(articleData)
       return data
-    } catch (error) {
-      const resError = getErrorConfig(error)
-      if (!resError) throw error
-      throw rejectWithValue(resError)
+    } catch (error: any) {
+      throw error.response ? rejectWithValue(getErrorData(error)) : error
     }
   },
 )
@@ -97,10 +89,8 @@ export const deleteArticle = createAsyncThunk(
     try {
       const { data } = await Articles.del(slug)
       return data
-    } catch (error) {
-      const resError = getErrorConfig(error)
-      if (!resError) throw error
-      throw rejectWithValue(resError)
+    } catch (error: any) {
+      throw error.response ? rejectWithValue(getErrorData(error)) : error
     }
   },
 )
@@ -114,7 +104,13 @@ const initialState: IArticleState = {
 const articleSlice = createSlice({
   name: 'article',
   initialState,
-  reducers: {},
+  reducers: {
+    authorUpdated: (state, action: PayloadAction<IProfile>) => {
+      if (state.article?.author) {
+        state.article.author = action.payload
+      }
+    },
+  },
   extraReducers: builder => {
     builder
       .addMatcher(
@@ -124,35 +120,30 @@ const articleSlice = createSlice({
         },
       )
       .addMatcher(
-        isRejected(
-          getArticle,
-          favoriteArticleSingle,
-          unfavoriteArticleSingle,
-          addNewArticle,
-          updateArticle,
-          deleteArticle,
-        ),
+        isRejected(getArticle, addNewArticle, updateArticle, deleteArticle),
         (state, action) => {
           state.status = 'failed'
           state.error = action.payload as IResError
         },
       )
       .addMatcher(
-        isFulfilled(
-          getArticle,
-          favoriteArticleSingle,
-          unfavoriteArticleSingle,
-          addNewArticle,
-          updateArticle,
-        ),
+        isFulfilled(getArticle, addNewArticle, updateArticle),
         (state, action) => {
           state.status = 'successed'
+          state.article = action.payload.article
+        },
+      )
+      .addMatcher(
+        isFulfilled(favoriteArticleSingle, unfavoriteArticleSingle),
+        (state, action) => {
           state.article = action.payload.article
         },
       )
       .addMatcher(isFulfilled(deleteArticle), () => initialState)
   },
 })
+
+export const { authorUpdated } = articleSlice.actions
 
 export const selectArticle = (state: RootState) => state.article.article
 export const selectActicleStatus = (state: RootState) => state.article.status

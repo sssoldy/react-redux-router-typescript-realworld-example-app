@@ -13,6 +13,7 @@ const NewCommentForm: React.FC = () => {
   const [comment, setComment] = React.useState<INewComment>({ body: '' })
   const [status, setStatus] = React.useState<ResponseStatus>('idle')
   const [error, setError] = React.useState<IResError | null>(null)
+  const canPost = Boolean(comment.body) && status !== 'loading'
 
   const user = useAppSelector(selectUser)
   const { slug } = useParams()
@@ -26,7 +27,7 @@ const NewCommentForm: React.FC = () => {
 
   const onFormSubmitted = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    if (!slug) return
+    if (!slug || !canPost) return
     try {
       setStatus('loading')
       setError(null)
@@ -61,7 +62,7 @@ const NewCommentForm: React.FC = () => {
             className="comment-author-img"
             alt={user.username}
           />
-          <button className="btn btn-sm btn-primary">
+          <button disabled={!canPost} className="btn btn-sm btn-primary">
             {status === 'loading' && <Spinner />} Post Comment
           </button>
         </div>

@@ -1,20 +1,15 @@
-import {
-  createAsyncThunk,
-  createSlice,
-  isFulfilled,
-  isPending,
-  isRejected,
-} from '@reduxjs/toolkit'
+import { createAsyncThunk, createSlice, isFulfilled } from '@reduxjs/toolkit'
 import { Profile } from '../../services/conduit'
 import { IResError } from '../../types/error'
-import { IProfile, IProfileRes, IProfileState } from '../../types/profile'
+import { IProfile, IProfileState } from '../../types/profile'
 import { IUser } from '../../types/user'
-import { getErrorConfig } from '../../utils/misc'
+import { getErrorData } from '../../utils/misc'
 import { RootState } from '../store'
+import { authorUpdated } from './articleSlice'
 import { selectArticleByUsername } from './articlesSlice'
 
 export const getProfile = createAsyncThunk<
-  IProfileRes,
+  IProfile,
   string,
   { state: RootState; rejectValue: IResError }
 >(
@@ -29,56 +24,54 @@ export const getProfile = createAsyncThunk<
     if (username === user?.username) {
       const { username, bio, image } = user
       const following = 'following' in user ? user.following : false
-      return {
-        profile: {
-          username,
-          bio,
-          image,
-          following,
-        },
-      }
+      return { username, bio, image, following }
     }
 
     try {
       const { data } = await Profile.get(username)
-      return data
-    } catch (error) {
-      const resError = getErrorConfig(error)
-      if (!resError) throw error
-      throw rejectWithValue(resError)
+      return data.profile
+    } catch (error: any) {
+      throw error.response ? rejectWithValue(getErrorData(error)) : error
     }
   },
 )
 
 export const followProfile = createAsyncThunk<
-  IProfileRes,
+  IProfile,
   string,
   { state: RootState; rejectValue: IResError }
->('profile/followProfile', async (username: string, { rejectWithValue }) => {
-  try {
-    const { data } = await Profile.follow(username)
-    return data
-  } catch (error) {
-    const resError = getErrorConfig(error)
-    if (!resError) throw error
-    throw rejectWithValue(resError)
-  }
-})
+>(
+  'profile/followProfile',
+  async (username: string, { getState, dispatch, rejectWithValue }) => {
+    try {
+      const { data } = await Profile.follow(username)
+      const article = getState().article.article
+      if (article) {
+        dispatch(authorUpdated(data.profile))
+      }
+      return data.profile
+    } catch (error: any) {
+      throw error.response ? rejectWithValue(getErrorData(error)) : error
+    }
+  },
+)
 
 export const unfollowProfile = createAsyncThunk<
-  IProfileRes,
+  IProfile,
   string,
   { state: RootState; rejectValue: IResError }
 >(
   'unprofile/unfollowProfile',
-  async (username: string, { rejectWithValue }) => {
+  async (username: string, { getState, dispatch, rejectWithValue }) => {
     try {
       const { data } = await Profile.unfollow(username)
-      return data
-    } catch (error) {
-      const resError = getErrorConfig(error)
-      if (!resError) throw error
-      throw rejectWithValue(resError)
+      const article = getState().article.article
+      if (article) {
+        dispatch(authorUpdated(data.profile))
+      }
+      return data.profile
+    } catch (error: any) {
+      throw error.response ? rejectWithValue(getErrorData(error)) : error
     }
   },
 )
@@ -95,29 +88,29 @@ const profileScile = createSlice({
   reducers: {},
   extraReducers: builder => {
     builder
-      .addMatcher(isPending(getProfile), state => {
+      .addCase(getProfile.pending, state => {
         state.status = 'loading'
       })
+      .addCase(getProfile.rejected, (state, action) => {
+        state.status = 'failed'
+        state.error = action.payload ?? null
+      })
+      .addCase(getProfile.fulfilled, (state, action) => {
+        state.status = 'successed'
+        state.error = null
+        state.profile = action.payload
+      })
       .addMatcher(
-        isRejected(getProfile, followProfile, unfollowProfile),
+        isFulfilled(followProfile, unfollowProfile),
         (state, action) => {
-          state.status = 'failed'
-          state.error = action.payload ?? null
-        },
-      )
-      .addMatcher(
-        isFulfilled(getProfile, followProfile, unfollowProfile),
-        (state, action) => {
-          state.status = 'successed'
-          state.error = null
-          state.profile = action.payload.profile
+          state.profile = action.payload
         },
       )
   },
 })
 
-export default profileScile.reducer
-
 export const selectProfile = (state: RootState) => state.profile.profile
 export const selectProfileStatus = (state: RootState) => state.profile.status
 export const selectProfileError = (state: RootState) => state.profile.error
+
+export default profileScile.reducer
