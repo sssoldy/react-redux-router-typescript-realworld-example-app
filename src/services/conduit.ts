@@ -7,6 +7,7 @@ import {
   IUpdateArticleReq,
 } from '../types/articles'
 import {
+  IDelCommentReq,
   IMultiCommentsRes,
   INewCommentReq,
   ISingleCommentRes,
@@ -101,17 +102,19 @@ export const Articles = {
 
 // Comments
 export const Comments = {
-  all: async (slug: string) =>
-    await axios.get<IMultiCommentsRes>(`articles/${slug}/comments`),
+  all: async (postSlug: string) =>
+    await axios.get<IMultiCommentsRes>(`articles/${postSlug}/comments`),
 
-  add: async (commentReqData: INewCommentReq) =>
+  add: async (newCommentData: INewCommentReq) =>
     await axios.post<ISingleCommentRes>(
-      `articles/${commentReqData.slug}/comments`,
-      { comment: commentReqData.comment },
+      `articles/${newCommentData.slug}/comments`,
+      { comment: newCommentData.comment },
     ),
 
-  delete: async (slug: string, id: number) =>
-    await axios.delete(`articles/${slug}/comments/${id}`),
+  delete: async (deleteCommentData: IDelCommentReq) => {
+    const { slug, id } = deleteCommentData
+    return await axios.delete(`articles/${slug}/comments/${id}`)
+  },
 }
 
 // Favorites

@@ -23,7 +23,6 @@ const FilterItem: React.FC<FilterItemProps> = ({
     <li className="nav-item">
       <button
         className={`nav-link ${isActive ? 'active' : ''}`}
-        style={{ outline: 'none' }}
         onClick={onButtonClicked}
       >
         {children}

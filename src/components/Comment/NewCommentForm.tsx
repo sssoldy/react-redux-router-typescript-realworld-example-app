@@ -1,16 +1,19 @@
 import * as React from 'react'
 import { useParams } from 'react-router-dom'
 import { useAppDispatch, useAppSelector } from '../../app/hooks'
-import { addNewComment } from '../../app/slices/commentsSlice'
+import { addComment } from '../../app/slices/commentsSlice'
 import { selectUser } from '../../app/slices/userSlice'
-import { INewComment, INewCommentReq } from '../../types/comments'
+import { ResponseStatus } from '../../types/api'
+import { INewComment } from '../../types/comments'
+import { IResError } from '../../types/error'
+import ErrorList from '../Error/ErrorList'
+import Spinner from '../UI/Spinner/Spinner'
 
-interface NewCommentFormProps {}
+const NewCommentForm: React.FC = () => {
+  const [comment, setComment] = React.useState<INewComment>({ body: '' })
+  const [status, setStatus] = React.useState<ResponseStatus>('idle')
+  const [error, setError] = React.useState<IResError | null>(null)
 
-const NewCommentForm: React.FC<NewCommentFormProps> = () => {
-  const [formData, setFormData] = React.useState<INewComment>({
-    body: '',
-  })
   const user = useAppSelector(selectUser)
   const { slug } = useParams()
 
@@ -18,46 +21,53 @@ const NewCommentForm: React.FC<NewCommentFormProps> = () => {
 
   const onTextAreaChanged = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const { name, value } = e.target
-    setFormData(prevFormData => ({
-      ...prevFormData,
-      [name]: value,
-    }))
+    setComment(prevComment => ({ ...prevComment, [name]: value }))
   }
 
-  const onFormSubmitted = (e: React.FormEvent<HTMLFormElement>) => {
+  const onFormSubmitted = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    if (slug) {
-      const newCommentReq: INewCommentReq = {
-        slug,
-        comment: { body: formData.body },
-      }
-      dispatch(addNewComment(newCommentReq))
+    if (!slug) return
+    try {
+      setStatus('loading')
+      setError(null)
+      await dispatch(addComment({ slug, comment })).unwrap()
+      setStatus('successed')
+      setComment({ body: '' })
+    } catch (error) {
+      setError(error as IResError)
+    } finally {
+      setStatus('idle')
     }
   }
 
   if (!user) return null
 
   return (
-    <form className="card comment-form" onSubmit={e => onFormSubmitted(e)}>
-      <div className="card-block">
-        <textarea
-          className="form-control"
-          placeholder="Write a comment..."
-          rows={3}
-          name="body"
-          value={formData.body}
-          onChange={e => onTextAreaChanged(e)}
-        ></textarea>
-      </div>
-      <div className="card-footer">
-        <img
-          src={user.image}
-          className="comment-author-img"
-          alt={user.username}
-        />
-        <button className="btn btn-sm btn-primary">Post Comment</button>
-      </div>
-    </form>
+    <React.Fragment>
+      <form className="card comment-form" onSubmit={e => onFormSubmitted(e)}>
+        <div className="card-block">
+          <textarea
+            className="form-control"
+            placeholder="Write a comment..."
+            rows={3}
+            name="body"
+            value={comment.body}
+            onChange={e => onTextAreaChanged(e)}
+          ></textarea>
+        </div>
+        <div className="card-footer">
+          <img
+            src={user.image}
+            className="comment-author-img"
+            alt={user.username}
+          />
+          <button className="btn btn-sm btn-primary">
+            {status === 'loading' && <Spinner />} Post Comment
+          </button>
+        </div>
+      </form>
+      <ErrorList error={error} />
+    </React.Fragment>
   )
 }
 

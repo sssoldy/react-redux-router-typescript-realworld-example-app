@@ -2,54 +2,50 @@ import {
   createAsyncThunk,
   createEntityAdapter,
   createSlice,
-  isFulfilled,
-  isPending,
-  isRejected,
 } from '@reduxjs/toolkit'
 import { Comments } from '../../services/conduit'
-import { IComment, ICommentsState, INewCommentReq } from '../../types/comments'
+import {
+  IComment,
+  ICommentsState,
+  IDelCommentReq,
+  INewCommentReq,
+} from '../../types/comments'
 import { IResError } from '../../types/error'
-import { getErrorConfig } from '../../utils/misc'
+import { getErrorData } from '../../utils/misc'
 import { RootState } from '../store'
 
-export const getAllComments = createAsyncThunk(
-  'comments/getAllComments',
-  async (slug: string, { rejectWithValue }) => {
+export const getComments = createAsyncThunk(
+  'comments/getComments',
+  async (postSlug: string, { rejectWithValue }) => {
     try {
-      const { data } = await Comments.all(slug)
+      const { data } = await Comments.all(postSlug)
       return data.comments
-    } catch (error) {
-      const resError = getErrorConfig(error)
-      if (!resError) throw error
-      throw rejectWithValue(resError)
+    } catch (error: any) {
+      throw error.response ? rejectWithValue(getErrorData(error)) : error
     }
   },
 )
 
-export const addNewComment = createAsyncThunk(
-  'comment/addNewComment',
-  async (commentData: INewCommentReq, { rejectWithValue }) => {
+export const addComment = createAsyncThunk(
+  'comments/addComment',
+  async (newCommentData: INewCommentReq, { rejectWithValue }) => {
     try {
-      const { data } = await Comments.add(commentData)
+      const { data } = await Comments.add(newCommentData)
       return data.comment
-    } catch (error) {
-      const resError = getErrorConfig(error)
-      if (!resError) throw error
-      throw rejectWithValue(resError)
+    } catch (error: any) {
+      throw error.response ? rejectWithValue(getErrorData(error)) : error
     }
   },
 )
 
 export const deleteComment = createAsyncThunk(
   'article/deleteComment',
-  async ({ slug, id }: { slug: string; id: number }, { rejectWithValue }) => {
+  async (deleteReqData: IDelCommentReq, { rejectWithValue }) => {
     try {
-      const { data } = await Comments.delete(slug, id)
+      const { data } = await Comments.delete(deleteReqData)
       return data
-    } catch (error) {
-      const resError = getErrorConfig(error)
-      if (!resError) throw error
-      throw rejectWithValue(resError)
+    } catch (error: any) {
+      throw error.response ? rejectWithValue(getErrorData(error)) : error
     }
   },
 )
@@ -70,29 +66,22 @@ const commentsSlice = createSlice({
   reducers: {},
   extraReducers: builder => {
     builder
-      .addMatcher(isPending(getAllComments), state => {
+      .addCase(getComments.pending, state => {
         state.status = 'loading'
       })
-      .addMatcher(
-        isRejected(getAllComments, addNewComment, deleteComment),
-        (state, action) => {
-          state.status = 'failed'
-          state.error = (action.payload as IResError) ?? null
-        },
-      )
-      .addMatcher(isFulfilled(getAllComments), (state, action) => {
+      .addCase(getComments.rejected, (state, action) => {
+        state.status = 'failed'
+        state.error = action.payload as IResError
+      })
+      .addCase(getComments.fulfilled, (state, action) => {
         state.status = 'successed'
         state.error = null
         commentsAdapter.setAll(state, action.payload)
       })
-      .addMatcher(isFulfilled(addNewComment), (state, action) => {
-        state.status = 'successed'
-        state.error = null
+      .addCase(addComment.fulfilled, (state, action) => {
         commentsAdapter.upsertOne(state, action.payload)
       })
-      .addMatcher(isFulfilled(deleteComment), (state, action) => {
-        state.status = 'successed'
-        state.error = null
+      .addCase(deleteComment.fulfilled, (state, action) => {
         commentsAdapter.removeOne(state, action.meta.arg.id)
       })
   },

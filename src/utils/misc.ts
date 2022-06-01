@@ -19,3 +19,12 @@ export const getErrorConfig = (error: any | AxiosError): IResError | null => {
   }
   return null
 }
+
+export const getErrorData = (error: any): IResError => {
+  return {
+    name: error.name,
+    status: error.response.status,
+    message: error.message,
+    data: error.response.data,
+  }
+}

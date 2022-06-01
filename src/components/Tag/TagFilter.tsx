@@ -11,7 +11,6 @@ const TagFilter: React.FC<TagFilterProps> = ({ tag }) => {
 
   return (
     <button
-      style={{ outline: 'none', border: 'none' }}
       className="tag-pill tag-default"
       onClick={() => dispatch(getTaggedArticles(tag))}
     >

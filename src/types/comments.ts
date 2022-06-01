@@ -27,6 +27,11 @@ export interface INewCommentReq {
   comment: INewComment
 }
 
+export interface IDelCommentReq {
+  slug: string
+  id: number
+}
+
 export interface ICommentsState {
   status: ResponseStatus
   error: IResError | null

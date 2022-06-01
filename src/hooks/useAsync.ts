@@ -2,6 +2,7 @@ import { AxiosResponse } from 'axios'
 import * as React from 'react'
 import { ResponseStatus } from '../types/api'
 import { IResError } from '../types/error'
+import { getErrorData } from '../utils/misc'
 
 type InitialState<D> = {
   data?: D | null
@@ -48,7 +49,7 @@ function useAsync<T>(initialState?: InitialState<T>) {
           return response.data
         },
         (error: IResError | null) => {
-          setError(error)
+          setError(getErrorData(error))
           return Promise.reject(error)
         },
       )

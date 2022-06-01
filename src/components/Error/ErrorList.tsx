@@ -19,30 +19,29 @@ const ErrorList: React.FC<ErrorListProps> = ({ error }) => {
   let content
   switch (status) {
     case 401:
-      content = <p>{unErrData.message}</p>
+      content = <pre>{unErrData.message}</pre>
       break
     case 403:
     case 422:
       content = Object.entries(genErrData.errors).map(([type, messages]) => {
         return (
-          <li key={type}>
+          <pre style={{ color: '#ef5350' }} key={type}>
             {type} {messages}
-          </li>
+          </pre>
         )
       })
       break
 
     default:
-      content = ''
+      content = `${status} ${message}`
       break
   }
 
   return (
-    <ul className="error-messages">
-      <p>Status code: {status}</p>
-      <p>Message: {message}</p>
+    <div style={{ color: '#ef5350' }}>
+      <span style={{ color: '#ef5350' }}>There was an error: </span>
       {content}
-    </ul>
+    </div>
   )
 }
 

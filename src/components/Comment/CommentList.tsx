@@ -2,13 +2,13 @@ import * as React from 'react'
 import { useParams } from 'react-router-dom'
 import { useAppDispatch, useAppSelector } from '../../app/hooks'
 import {
-  getAllComments,
+  getComments,
   selectCommentsError,
   selectCommentsIds,
   selectCommentsStatus,
 } from '../../app/slices/commentsSlice'
 import ErrorList from '../Error/ErrorList'
-import Spinner from '../Spinner/Spinner'
+import ListSpinner from '../UI/Spinner/ListSpinner'
 import Comment from './Comment'
 
 const CommentList: React.FC = () => {
@@ -22,11 +22,11 @@ const CommentList: React.FC = () => {
 
   React.useEffect(() => {
     if (slug) {
-      dispatch(getAllComments(slug))
+      dispatch(getComments(slug))
     }
   }, [dispatch, slug])
 
-  if (status === 'loading') return <Spinner />
+  if (status === 'loading') return <ListSpinner />
   if (status === 'failed') return <ErrorList error={error} />
   if (!commentIds.length) return <div>No comments are here... yet.</div>
 
