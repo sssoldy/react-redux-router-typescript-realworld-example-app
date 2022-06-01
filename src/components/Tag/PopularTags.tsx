@@ -3,7 +3,7 @@ import { useAsync } from '../../hooks/useAsync'
 import { Tags } from '../../services/conduit'
 import { ITagsRes } from '../../types/tags'
 import ErrorList from '../Error/ErrorList'
-import Spinner from '../Spinner/Spinner'
+import Spinner from '../UI/Spinner/Spinner'
 import TagList from './TagList'
 
 interface PopularTagsProps {}

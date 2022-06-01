@@ -8,7 +8,7 @@ import {
 } from './app/slices/userSlice'
 import RequireAuth from './components/Auth/RequireAuth'
 import FullPageError from './components/Error/FullPageError'
-import FullPageSpinner from './components/Spinner/FullPageSpinner'
+import FullPageSpinner from './components/UI/Spinner/FullPageSpinner'
 import Footer from './layouts/Footer'
 import Header from './layouts/Header'
 import Main from './layouts/Main'

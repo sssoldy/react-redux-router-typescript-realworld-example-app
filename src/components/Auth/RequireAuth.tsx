@@ -1,16 +1,11 @@
 import * as React from 'react'
-import { Navigate, Outlet, useLocation } from 'react-router-dom'
-import { useAppSelector } from '../../app/hooks'
-import { selectUserToken } from '../../app/slices/userSlice'
-import { IFromState } from '../../types/locationState'
+import { Navigate, Outlet } from 'react-router-dom'
+import { useAuthRequire } from '../../hooks/useAuthRequire'
 
 const RequireAuth: React.FC = () => {
-  const auth = useAppSelector(selectUserToken)
-  const location = useLocation()
-  const from: IFromState = { from: location }
+  const { auth, from } = useAuthRequire()
 
   if (!auth) {
-    console.log('RequireAuth')
     return <Navigate to="/login" state={from} replace />
   }
 

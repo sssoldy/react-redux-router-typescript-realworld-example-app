@@ -10,7 +10,7 @@ import {
 } from '../../app/slices/articlesSlice'
 import { useLocationFilter } from '../../hooks/useLocationFilter'
 import ErrorList from '../Error/ErrorList'
-import Spinner from '../Spinner/Spinner'
+import ListSpinner from '../UI/Spinner/ListSpinner'
 import ArticlePreview from './ArticlePreview'
 
 const ArticleList: React.FC = () => {
@@ -36,7 +36,7 @@ const ArticleList: React.FC = () => {
     }
   }, [dispatch, isHome, user, username])
 
-  if (status === 'loading') return <Spinner />
+  if (status === 'loading') return <ListSpinner />
   if (status === 'failed') return <ErrorList error={error} />
   if (!articleIds.length) return <div>No articles are here... yet.</div>
 

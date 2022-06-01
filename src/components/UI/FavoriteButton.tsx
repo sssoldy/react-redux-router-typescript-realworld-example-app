@@ -1,9 +1,11 @@
 import * as React from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useAppDispatch } from '../../app/hooks'
 import {
   favoriteArticle,
   unfavoriteArticle,
 } from '../../app/slices/articleSlice'
+import { useAuthRequire } from '../../hooks/useAuthRequire'
 import { ResponseStatus } from '../../types/api'
 import { IArticle } from '../../types/articles'
 import { IResError } from '../../types/error'
@@ -29,10 +31,18 @@ const FavoriteButton: React.FC<FavoriteButtonProps> = ({
   const isFavorited = article.favorited || false
   const canFavorite = status !== 'loading'
 
+  const { auth, from } = useAuthRequire()
+
+  const navigate = useNavigate()
   const dispatch = useAppDispatch()
 
   const onFavoriteClicked = async () => {
+    if (!auth) {
+      navigate('/login', { state: from, replace: true })
+      return
+    }
     if (!canFavorite) return
+
     try {
       setError(null)
       setStatus('loading')

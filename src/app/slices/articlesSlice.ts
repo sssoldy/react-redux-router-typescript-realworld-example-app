@@ -12,7 +12,7 @@ import { Articles } from '../../services/conduit'
 import { IResFilter } from '../../types/api'
 import { IArticle, IArticlesState } from '../../types/articles'
 import { IResError } from '../../types/error'
-import { getErrorConfig } from '../../utils/misc'
+import { getErrorData } from '../../utils/misc'
 import { RootState } from '../store'
 
 export const getAllArticles = createAsyncThunk<
@@ -28,10 +28,8 @@ export const getAllArticles = createAsyncThunk<
     try {
       const { data } = await Articles.all()
       return data.articles
-    } catch (error) {
-      const resError = getErrorConfig(error)
-      if (!resError) throw error
-      throw rejectWithValue(resError)
+    } catch (error: any) {
+      throw error.response ? rejectWithValue(getErrorData(error)) : error
     }
   },
   {
@@ -51,10 +49,8 @@ export const getUserFeedArticles = createAsyncThunk<
     try {
       const { data } = await Articles.feed()
       return data.articles
-    } catch (error) {
-      const resError = getErrorConfig(error)
-      if (!resError) throw error
-      throw rejectWithValue(resError)
+    } catch (error: any) {
+      throw error.response ? rejectWithValue(getErrorData(error)) : error
     }
   },
   {
@@ -77,10 +73,8 @@ export const getProfileArticles = createAsyncThunk<
     try {
       const { data } = await Articles.profile(username)
       return data.articles
-    } catch (error) {
-      const resError = getErrorConfig(error)
-      if (!resError) throw error
-      throw rejectWithValue(resError)
+    } catch (error: any) {
+      throw error.response ? rejectWithValue(getErrorData(error)) : error
     }
   },
   {
@@ -103,10 +97,8 @@ export const getFavoritedArticles = createAsyncThunk<
     try {
       const { data } = await Articles.favorited(username)
       return data.articles
-    } catch (error) {
-      const resError = getErrorConfig(error)
-      if (!resError) throw error
-      throw rejectWithValue(resError)
+    } catch (error: any) {
+      throw error.response ? rejectWithValue(getErrorData(error)) : error
     }
   },
   {
@@ -129,10 +121,8 @@ export const getTaggedArticles = createAsyncThunk<
     try {
       const { data } = await Articles.tag(tag)
       return data.articles
-    } catch (error) {
-      const resError = getErrorConfig(error)
-      if (!resError) throw error
-      throw rejectWithValue(resError)
+    } catch (error: any) {
+      throw error.response ? rejectWithValue(getErrorData(error)) : error
     }
   },
   {

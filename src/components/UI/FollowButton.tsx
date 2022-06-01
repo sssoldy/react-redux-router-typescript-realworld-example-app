@@ -1,6 +1,8 @@
 import * as React from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useAppDispatch } from '../../app/hooks'
 import { followProfile, unfollowProfile } from '../../app/slices/profileSlice'
+import { useAuthRequire } from '../../hooks/useAuthRequire'
 import { ResponseStatus } from '../../types/api'
 import { IResError } from '../../types/error'
 import { IProfile } from '../../types/profile'
@@ -20,9 +22,16 @@ const FollowButton: React.FC<FollowButtonProps> = ({ profile, ...props }) => {
   const canFollow = status !== 'loading'
   const { username } = profile
 
+  const { auth, from } = useAuthRequire()
+
+  const navigate = useNavigate()
   const dispatch = useAppDispatch()
 
   const onFollowClicked = async () => {
+    if (!auth) {
+      navigate('/login', { state: from, replace: true })
+      return
+    }
     if (!canFollow) return
     try {
       setError(null)
