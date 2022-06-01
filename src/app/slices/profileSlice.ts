@@ -61,7 +61,7 @@ export const unfollowProfile = createAsyncThunk<
   string,
   { state: RootState; rejectValue: IResError }
 >(
-  'unprofile/unfollowProfile',
+  'profile/unfollowProfile',
   async (username: string, { getState, dispatch, rejectWithValue }) => {
     try {
       const { data } = await Profile.unfollow(username)

@@ -34,6 +34,7 @@ const FavoriteButton: React.FC<FavoriteButtonProps> = ({
   const onFavoriteClicked = async () => {
     if (!canFavorite) return
     try {
+      setError(null)
       setStatus('loading')
       isFavorited
         ? await dispatch(unfavoriteArticleSingle(article.slug)).unwrap()

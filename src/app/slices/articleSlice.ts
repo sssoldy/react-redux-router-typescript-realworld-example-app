@@ -120,7 +120,7 @@ const articleSlice = createSlice({
         },
       )
       .addMatcher(
-        isRejected(getArticle, addNewArticle, updateArticle, deleteArticle),
+        isRejected(getArticle, addNewArticle, updateArticle),
         (state, action) => {
           state.status = 'failed'
           state.error = action.payload as IResError

@@ -9,7 +9,7 @@ import {
 } from '../../app/slices/commentsSlice'
 import ErrorList from '../Error/ErrorList'
 import ListSpinner from '../UI/Spinner/ListSpinner'
-import Comment from './Comment'
+import CommentItem from './CommentItem'
 
 const CommentList: React.FC = () => {
   const commentIds = useAppSelector(selectCommentsIds)
@@ -33,7 +33,7 @@ const CommentList: React.FC = () => {
   return (
     <React.Fragment>
       {commentIds.map(commentId => (
-        <Comment key={commentId} commentId={commentId} />
+        <CommentItem key={commentId} commentId={commentId} />
       ))}
     </React.Fragment>
   )

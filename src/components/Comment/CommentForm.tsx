@@ -1,21 +1,24 @@
 import * as React from 'react'
 import { useParams } from 'react-router-dom'
-import { useAppDispatch, useAppSelector } from '../../app/hooks'
+import { useAppDispatch } from '../../app/hooks'
 import { addComment } from '../../app/slices/commentsSlice'
-import { selectUser } from '../../app/slices/userSlice'
 import { ResponseStatus } from '../../types/api'
 import { INewComment } from '../../types/comments'
 import { IResError } from '../../types/error'
+import { IUser } from '../../types/user'
 import ErrorList from '../Error/ErrorList'
 import Spinner from '../UI/Spinner/Spinner'
 
-const NewCommentForm: React.FC = () => {
+interface CommentFormProps {
+  user: IUser
+}
+
+const CommentForm: React.FC<CommentFormProps> = ({ user }) => {
   const [comment, setComment] = React.useState<INewComment>({ body: '' })
   const [status, setStatus] = React.useState<ResponseStatus>('idle')
   const [error, setError] = React.useState<IResError | null>(null)
   const canPost = Boolean(comment.body) && status !== 'loading'
 
-  const user = useAppSelector(selectUser)
   const { slug } = useParams()
 
   const dispatch = useAppDispatch()
@@ -40,8 +43,6 @@ const NewCommentForm: React.FC = () => {
       setStatus('idle')
     }
   }
-
-  if (!user) return null
 
   return (
     <React.Fragment>
@@ -72,4 +73,4 @@ const NewCommentForm: React.FC = () => {
   )
 }
 
-export default NewCommentForm
+export default CommentForm

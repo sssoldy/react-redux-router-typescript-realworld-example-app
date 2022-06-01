@@ -25,6 +25,7 @@ const FollowButton: React.FC<FollowButtonProps> = ({ profile, ...props }) => {
   const onFollowClicked = async () => {
     if (!canFollow) return
     try {
+      setError(null)
       setStatus('loading')
       isFollowing
         ? await dispatch(unfollowProfile(username)).unwrap()

@@ -13,11 +13,11 @@ import { formatDate } from '../../utils/misc'
 import ErrorList from '../Error/ErrorList'
 import Spinner from '../UI/Spinner/Spinner'
 
-interface CommentProps {
+interface CommentItemProps {
   commentId: EntityId
 }
 
-const Comment: React.FC<CommentProps> = ({ commentId }) => {
+const CommentItem: React.FC<CommentItemProps> = ({ commentId }) => {
   const comment = useAppSelector(state => selectCommentById(state, commentId))
   const username = useAppSelector(selectUsername)
   const isUserComment = comment?.author.username === username
@@ -81,4 +81,4 @@ const Comment: React.FC<CommentProps> = ({ commentId }) => {
   )
 }
 
-export default Comment
+export default CommentItem
