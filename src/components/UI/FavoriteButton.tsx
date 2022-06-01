@@ -1,8 +1,8 @@
 import * as React from 'react'
 import { useAppDispatch } from '../../app/hooks'
 import {
-  favoriteArticleSingle,
-  unfavoriteArticleSingle,
+  favoriteArticle,
+  unfavoriteArticle,
 } from '../../app/slices/articleSlice'
 import { ResponseStatus } from '../../types/api'
 import { IArticle } from '../../types/articles'
@@ -37,8 +37,8 @@ const FavoriteButton: React.FC<FavoriteButtonProps> = ({
       setError(null)
       setStatus('loading')
       isFavorited
-        ? await dispatch(unfavoriteArticleSingle(article.slug)).unwrap()
-        : await dispatch(favoriteArticleSingle(article.slug)).unwrap()
+        ? await dispatch(unfavoriteArticle(article.slug)).unwrap()
+        : await dispatch(favoriteArticle(article.slug)).unwrap()
       setStatus('successed')
     } catch (error) {
       setError(error as IResError)

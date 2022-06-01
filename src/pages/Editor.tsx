@@ -1,34 +1,31 @@
 import * as React from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useAppDispatch, useAppSelector } from '../app/hooks'
-import {
-  addNewArticle,
-  selectActicleStatus,
-  selectArticle,
-  selectArticleError,
-  updateArticle,
-} from '../app/slices/articleSlice'
+import { useAppDispatch } from '../app/hooks'
+import { addNewArticle, updateArticle } from '../app/slices/articleSlice'
 import ErrorList from '../components/Error/ErrorList'
+import Spinner from '../components/UI/Spinner/Spinner'
 import { useLocationState } from '../hooks/useLocationState'
+import { ResponseStatus } from '../types/api'
 import { INewArticleReq, IUpdateArticleReq } from '../types/articles'
+import { IResError } from '../types/error'
 import { IEditArticleState } from '../types/locationState'
 
 const Editor: React.FC = () => {
   const locationState = useLocationState<IEditArticleState>()
   const editArticleSlug = locationState?.slug ?? null
   const articleToEdit = locationState?.article ?? null
+  const tagList = articleToEdit?.tagList?.join(', ') ?? ''
+  const initialState = {
+    title: '',
+    description: '',
+    body: '',
+    ...articleToEdit,
+    tagList,
+  }
 
-  const article = useAppSelector(selectArticle)
-  const status = useAppSelector(selectActicleStatus)
-  const error = useAppSelector(selectArticleError)
-
-  const [articleFormData, setArticleFormData] = React.useState({
-    title: articleToEdit ? articleToEdit.title : '',
-    description: articleToEdit ? articleToEdit.description : '',
-    body: articleToEdit ? articleToEdit.body : '',
-    tags: articleToEdit ? articleToEdit.tagList?.join(', ') : '',
-  })
-  const [isSubmitted, setIsSubmitted] = React.useState(false)
+  const [article, setArticle] = React.useState(initialState)
+  const [status, setStatus] = React.useState<ResponseStatus>('idle')
+  const [error, setError] = React.useState<IResError | null>(null)
 
   const navigate = useNavigate()
   const dispatch = useAppDispatch()
@@ -37,46 +34,44 @@ const Editor: React.FC = () => {
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
     const { name, value } = e.target
-    setIsSubmitted(false)
-    setArticleFormData(prevArticleFormData => ({
-      ...prevArticleFormData,
+    setArticle(prevarticle => ({
+      ...prevarticle,
       [name]: value,
     }))
   }
 
-  const onFormSubmitted = (e: React.FormEvent<HTMLFormElement>) => {
+  const onFormSubmitted = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    setIsSubmitted(true)
 
-    const { title, description, body } = articleFormData
-    const tagList = articleFormData.tags?.split(',').map(t => t.trim())
-    const articleToReq = { title, description, body, tagList }
+    const tagList = article.tagList.split(', ')
 
-    if (editArticleSlug) {
-      const articleToUpdate: IUpdateArticleReq = {
-        slug: editArticleSlug,
-        article: { ...articleToReq },
+    try {
+      setStatus('loading')
+      let data
+      if (editArticleSlug) {
+        const articleToUpdate: IUpdateArticleReq = {
+          slug: editArticleSlug,
+          article: { ...article, tagList },
+        }
+        data = await dispatch(updateArticle(articleToUpdate)).unwrap()
+      } else {
+        const newArticle: INewArticleReq = { article: { ...article, tagList } }
+        data = await dispatch(addNewArticle(newArticle)).unwrap()
       }
-      dispatch(updateArticle(articleToUpdate))
-    } else {
-      const newArticle: INewArticleReq = { article: { ...articleToReq } }
-      dispatch(addNewArticle(newArticle))
+      const { slug } = data.article
+      navigate(`/article/${slug}`, { replace: true })
+    } catch (error) {
+      setError(error as IResError)
+    } finally {
+      setStatus('idle')
     }
   }
-
-  React.useEffect(() => {
-    if (status === 'successed' && article && isSubmitted) {
-      navigate(`/article/${article.slug}`, { replace: true })
-    }
-  }, [article, isSubmitted, navigate, status])
 
   return (
     <div className="editor-page">
       <div className="container page">
         <div className="row">
           <div className="col-md-10 offset-md-1 col-xs-12">
-            <ErrorList error={error} />
-
             <form onSubmit={e => onFormSubmitted(e)}>
               <fieldset disabled={status === 'loading'}>
                 <fieldset className="form-group">
@@ -85,7 +80,7 @@ const Editor: React.FC = () => {
                     className="form-control form-control-lg"
                     placeholder="Article Title"
                     name="title"
-                    value={articleFormData.title}
+                    value={article.title}
                     onChange={e => onInputChanged(e)}
                   />
                 </fieldset>
@@ -95,7 +90,7 @@ const Editor: React.FC = () => {
                     className="form-control"
                     placeholder="What's this article about?"
                     name="description"
-                    value={articleFormData.description}
+                    value={article.description}
                     onChange={e => onInputChanged(e)}
                   />
                 </fieldset>
@@ -105,7 +100,7 @@ const Editor: React.FC = () => {
                     rows={8}
                     placeholder="Write your article (in markdown)"
                     name="body"
-                    value={articleFormData.body}
+                    value={article.body}
                     onChange={e => onInputChanged(e)}
                   />
                 </fieldset>
@@ -114,17 +109,19 @@ const Editor: React.FC = () => {
                     type="text"
                     className="form-control"
                     placeholder="Enter tags"
-                    name="tags"
-                    value={articleFormData.tags}
+                    name="tagList"
+                    value={article.tagList}
                     onChange={e => onInputChanged(e)}
                   />
                   <div className="tag-list"></div>
                 </fieldset>
                 <button className="btn btn-lg pull-xs-right btn-primary">
-                  {editArticleSlug ? 'Update' : 'Publish'} Article
+                  {editArticleSlug ? 'Update' : 'Publish'} Article{' '}
+                  {status === 'loading' && <Spinner />}
                 </button>
               </fieldset>
             </form>
+            <ErrorList error={error} />
           </div>
         </div>
       </div>

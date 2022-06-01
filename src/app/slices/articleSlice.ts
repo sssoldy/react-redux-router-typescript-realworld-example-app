@@ -2,8 +2,6 @@ import {
   createAsyncThunk,
   createSlice,
   isFulfilled,
-  isPending,
-  isRejected,
   PayloadAction,
 } from '@reduxjs/toolkit'
 import { Articles, Faforites } from '../../services/conduit'
@@ -17,7 +15,7 @@ import { IResError } from '../../types/error'
 import { IProfile } from '../../types/profile'
 import { getErrorData } from '../../utils/misc'
 import { RootState } from '../store'
-import { selectArticleById } from './articlesSlice'
+import { favoriteToggled, selectArticleById } from './articlesSlice'
 
 export const getArticle = createAsyncThunk<
   ISingleArticleRes,
@@ -35,11 +33,17 @@ export const getArticle = createAsyncThunk<
   }
 })
 
-export const favoriteArticleSingle = createAsyncThunk(
-  'article/favoriteArticleSingle',
-  async (slug: string, { rejectWithValue }) => {
+export const favoriteArticle = createAsyncThunk<
+  ISingleArticleRes,
+  string,
+  { state: RootState; rejectValue: IResError }
+>(
+  'article/favoriteArticle',
+  async (slug: string, { getState, dispatch, rejectWithValue }) => {
     try {
       const { data } = await Faforites.add(slug)
+      const isArticles = getState().articles.status === 'successed'
+      if (isArticles) dispatch(favoriteToggled(data.article))
       return data
     } catch (error: any) {
       throw error.response ? rejectWithValue(getErrorData(error)) : error
@@ -47,11 +51,17 @@ export const favoriteArticleSingle = createAsyncThunk(
   },
 )
 
-export const unfavoriteArticleSingle = createAsyncThunk(
-  'article/unfavoriteArticleSingle',
-  async (slug: string, { rejectWithValue }) => {
+export const unfavoriteArticle = createAsyncThunk<
+  ISingleArticleRes,
+  string,
+  { state: RootState; rejectValue: IResError }
+>(
+  'article/unfavoriteArticle',
+  async (slug: string, { getState, dispatch, rejectWithValue }) => {
     try {
       const { data } = await Faforites.remove(slug)
+      const isArticles = getState().articles.status === 'successed'
+      if (isArticles) dispatch(favoriteToggled(data.article))
       return data
     } catch (error: any) {
       throw error.response ? rejectWithValue(getErrorData(error)) : error
@@ -113,33 +123,30 @@ const articleSlice = createSlice({
   },
   extraReducers: builder => {
     builder
+      .addCase(getArticle.pending, state => {
+        state.status = 'loading'
+      })
+      .addCase(getArticle.rejected, (state, action) => {
+        state.status = 'failed'
+        state.error = action.payload as IResError
+      })
+      .addCase(getArticle.fulfilled, (state, action) => {
+        state.status = 'successed'
+        state.article = action.payload.article
+      })
+      .addCase(deleteArticle.fulfilled, () => initialState)
       .addMatcher(
-        isPending(getArticle, addNewArticle, updateArticle),
-        state => {
-          state.status = 'loading'
-        },
-      )
-      .addMatcher(
-        isRejected(getArticle, addNewArticle, updateArticle),
-        (state, action) => {
-          state.status = 'failed'
-          state.error = action.payload as IResError
-        },
-      )
-      .addMatcher(
-        isFulfilled(getArticle, addNewArticle, updateArticle),
-        (state, action) => {
-          state.status = 'successed'
-          state.article = action.payload.article
-        },
-      )
-      .addMatcher(
-        isFulfilled(favoriteArticleSingle, unfavoriteArticleSingle),
+        isFulfilled(addNewArticle, updateArticle),
         (state, action) => {
           state.article = action.payload.article
         },
       )
-      .addMatcher(isFulfilled(deleteArticle), () => initialState)
+      .addMatcher(
+        isFulfilled(favoriteArticle, unfavoriteArticle),
+        (state, action) => {
+          state.article = action.payload.article
+        },
+      )
   },
 })
 

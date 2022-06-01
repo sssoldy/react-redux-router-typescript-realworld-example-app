@@ -6,8 +6,9 @@ import {
   isFulfilled,
   isPending,
   isRejected,
+  PayloadAction,
 } from '@reduxjs/toolkit'
-import { Articles, Faforites } from '../../services/conduit'
+import { Articles } from '../../services/conduit'
 import { IResFilter } from '../../types/api'
 import { IArticle, IArticlesState } from '../../types/articles'
 import { IResError } from '../../types/error'
@@ -141,34 +142,6 @@ export const getTaggedArticles = createAsyncThunk<
   },
 )
 
-export const favoriteArticle = createAsyncThunk(
-  'articles/favoriteArticle',
-  async (slug: string, { rejectWithValue }) => {
-    try {
-      const { data } = await Faforites.add(slug)
-      return data.article
-    } catch (error) {
-      const resError = getErrorConfig(error)
-      if (!resError) throw error
-      throw rejectWithValue(resError)
-    }
-  },
-)
-
-export const unfavoriteArticle = createAsyncThunk(
-  'articles/unfavoriteArticle',
-  async (slug: string, { rejectWithValue }) => {
-    try {
-      const { data } = await Faforites.remove(slug)
-      return data.article
-    } catch (error) {
-      const resError = getErrorConfig(error)
-      if (!resError) throw error
-      throw rejectWithValue(resError)
-    }
-  },
-)
-
 const articlesAdapter = createEntityAdapter<IArticle>({
   selectId: state => state.slug,
 })
@@ -183,16 +156,17 @@ const articlesSlice = createSlice({
   name: 'articles',
   initialState,
   reducers: {
-    articleRemoved: (state, action) => {
-      articlesAdapter.removeOne(state, action.payload)
+    favoriteToggled: (state, action: PayloadAction<IArticle>) => {
+      const { slug, favorited, favoritesCount } = action.payload
+      const update = {
+        id: slug,
+        changes: { favorited, favoritesCount },
+      }
+      articlesAdapter.updateOne(state, update)
     },
   },
   extraReducers: builder => {
     builder
-      .addCase(unfavoriteArticle.fulfilled, (state, action) => {
-        if (state.filter.by === 'favorited')
-          articlesAdapter.removeOne(state, action.payload.slug)
-      })
       .addMatcher(
         isPending(
           getAllArticles,
@@ -235,25 +209,10 @@ const articlesSlice = createSlice({
           articlesAdapter.setAll(state, action.payload)
         },
       )
-      .addMatcher(isRejected(favoriteArticle, unfavoriteArticle), state => {
-        state.status = 'failed'
-      })
-      .addMatcher(
-        isFulfilled(favoriteArticle, unfavoriteArticle),
-        (state, action) => {
-          state.status = 'successed'
-          const { slug, favorited, favoritesCount } = action.payload
-          const update = {
-            id: slug,
-            changes: { favorited, favoritesCount },
-          }
-          articlesAdapter.updateOne(state, update)
-        },
-      )
   },
 })
 
-export const { articleRemoved } = articlesSlice.actions
+export const { favoriteToggled } = articlesSlice.actions
 
 export const {
   selectAll: selectAllArticles,
