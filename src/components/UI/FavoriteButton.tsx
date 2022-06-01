@@ -29,7 +29,7 @@ const FavoriteButton: React.FC<FavoriteButtonProps> = ({
   const [status, setStatus] = React.useState<ResponseStatus>('idle')
   const [error, setError] = React.useState<IResError | null>(null)
   const isFavorited = article.favorited || false
-  const canFavorite = status !== 'loading'
+  const canFavorite = status === 'idle'
 
   const { auth, from } = useAuthRequire()
 

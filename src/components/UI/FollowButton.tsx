@@ -19,7 +19,7 @@ const FollowButton: React.FC<FollowButtonProps> = ({ profile, ...props }) => {
   const [status, setStatus] = React.useState<ResponseStatus>('idle')
   const [error, setError] = React.useState<IResError | null>(null)
   const isFollowing = profile.following || false
-  const canFollow = status !== 'loading'
+  const canFollow = status === 'idle'
   const { username } = profile
 
   const { auth, from } = useAuthRequire()

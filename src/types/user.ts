@@ -1,6 +1,3 @@
-import { ResponseStatus } from './api'
-import { IResError } from './error'
-
 export interface IUser {
   email: string
   token: string
@@ -47,8 +44,4 @@ export interface IUpdateUserReq {
 
 export interface IUserState {
   user: IUser | null
-  initStatus: ResponseStatus
-  currentStatus: ResponseStatus
-  initError: IResError | null
-  currentError: IResError | null
 }

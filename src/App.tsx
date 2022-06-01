@@ -1,11 +1,7 @@
 import * as React from 'react'
 import { Route, Routes } from 'react-router-dom'
-import { useAppDispatch, useAppSelector } from './app/hooks'
-import {
-  getCurrentUser,
-  selectUserInitError,
-  selectUserInitStatus,
-} from './app/slices/userSlice'
+import { useAppDispatch } from './app/hooks'
+import { getCurrentUser } from './app/slices/userSlice'
 import RequireAuth from './components/Auth/RequireAuth'
 import FullPageError from './components/Error/FullPageError'
 import FullPageSpinner from './components/UI/Spinner/FullPageSpinner'
@@ -19,17 +15,28 @@ import Login from './pages/Login'
 import Profile from './pages/Profile'
 import Register from './pages/Register'
 import Settings from './pages/Settings'
+import { ResponseStatus } from './types/api'
+import { IResError } from './types/error'
 
 const App: React.FC = () => {
-  const error = useAppSelector(selectUserInitError)
-  const status = useAppSelector(selectUserInitStatus)
+  const [status, setStatus] = React.useState<ResponseStatus>('idle')
+  const [error, setError] = React.useState<IResError | null>(null)
   const token = localStorage.getItem('jwt')
 
   const dispatch = useAppDispatch()
 
   React.useEffect(() => {
     if (token && status === 'idle') {
-      dispatch(getCurrentUser(token))
+      ;(async () => {
+        try {
+          setStatus('loading')
+          await dispatch(getCurrentUser(token)).unwrap()
+          setStatus('successed')
+        } catch (error) {
+          setStatus('failed')
+          setError(error as IResError)
+        }
+      })()
     }
   }, [dispatch, status, token])
 

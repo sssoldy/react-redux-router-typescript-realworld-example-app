@@ -1,28 +1,28 @@
 import * as React from 'react'
-import { useNavigate } from 'react-router-dom'
-import { useAppDispatch, useAppSelector } from '../app/hooks'
-import {
-  registerUser,
-  resetUserCurrentStatus,
-  resetUserCurrentError,
-  selectUserUpdateError,
-  selectUserUpdateStatus,
-} from '../app/slices/userSlice'
+import { Link, useNavigate } from 'react-router-dom'
+import { useAppDispatch } from '../app/hooks'
+import { registerUser } from '../app/slices/userSlice'
 import ErrorList from '../components/Error/ErrorList'
+import Spinner from '../components/UI/Spinner/Spinner'
 import { useLocationState } from '../hooks/useLocationState'
+import { ResponseStatus } from '../types/api'
+import { IResError } from '../types/error'
 import { IFromState } from '../types/locationState'
 import { IRegisterUser } from '../types/user'
 
-// TODO: Add client side validation
 const Register: React.FC = () => {
-  const [formData, setFormData] = React.useState<IRegisterUser>({
+  const [user, setUser] = React.useState<IRegisterUser>({
     username: '',
     email: '',
     password: '',
   })
-  const { username, email, password } = formData
-  const status = useAppSelector(selectUserUpdateStatus)
-  const error = useAppSelector(selectUserUpdateError)
+  const { username, email, password } = user
+
+  const [status, setStatus] = React.useState<ResponseStatus>('idle')
+  const [error, setError] = React.useState<IResError | null>(null)
+  const canRegister =
+    [username, email, password].every(Boolean) && status === 'idle'
+
   const locationState = useLocationState<IFromState>()
   const from = locationState?.from?.pathname || '/'
 
@@ -31,29 +31,26 @@ const Register: React.FC = () => {
 
   const onInputChanged = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
-    setFormData(prevFormData => ({
-      ...prevFormData,
+    setUser(prevUser => ({
+      ...prevUser,
       [name]: value,
     }))
   }
 
-  const onFormSubmitted = (e: React.FormEvent<HTMLFormElement>) => {
+  const onFormSubmitted = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    dispatch(registerUser({ user: formData }))
-  }
-
-  React.useEffect(() => {
-    if (status === 'successed') {
+    if (!canRegister) return
+    try {
+      setError(null)
+      setStatus('loading')
+      await dispatch(registerUser({ user: user })).unwrap()
       navigate(from, { replace: true })
-      dispatch(resetUserCurrentStatus())
+    } catch (error) {
+      setError(error as IResError)
+    } finally {
+      setStatus('idle')
     }
-  }, [dispatch, from, navigate, status])
-
-  React.useEffect(() => {
-    return () => {
-      dispatch(resetUserCurrentError())
-    }
-  }, [dispatch])
+  }
 
   return (
     <div className="auth-page">
@@ -62,10 +59,8 @@ const Register: React.FC = () => {
           <div className="col-md-6 offset-md-3 col-xs-12">
             <h1 className="text-xs-center">Sign up</h1>
             <p className="text-xs-center">
-              <a href="/">Have an account?</a>
+              <Link to="/login">Have an account?</Link>
             </p>
-
-            <ErrorList error={error} />
 
             <form onSubmit={e => onFormSubmitted(e)}>
               <fieldset disabled={status === 'loading'}>
@@ -99,11 +94,15 @@ const Register: React.FC = () => {
                     onChange={e => onInputChanged(e)}
                   />
                 </fieldset>
-                <button className="btn btn-lg btn-primary pull-xs-right">
-                  Sign up
+                <button
+                  disabled={!canRegister}
+                  className="btn btn-lg btn-primary pull-xs-right"
+                >
+                  Sign up {status === 'loading' && <Spinner />}
                 </button>
               </fieldset>
             </form>
+            <ErrorList error={error} />
           </div>
         </div>
       </div>

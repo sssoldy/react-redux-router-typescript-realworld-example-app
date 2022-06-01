@@ -1,33 +1,26 @@
 import * as React from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAppDispatch, useAppSelector } from '../app/hooks'
-import {
-  loggedOut,
-  resetUserCurrentStatus,
-  resetUserCurrentError,
-  selectUser,
-  selectUserUpdateError,
-  selectUserUpdateStatus,
-  updateUser,
-} from '../app/slices/userSlice'
+import { loggedOut, selectUser, updateUser } from '../app/slices/userSlice'
 import ErrorList from '../components/Error/ErrorList'
+import Spinner from '../components/UI/Spinner/Spinner'
+import { ResponseStatus } from '../types/api'
+import { IResError } from '../types/error'
 import { IUpdateUser, IUser } from '../types/user'
 
+// TODO: something wrong with API. Have to research dependencies
 const Settings: React.FC = () => {
-  // FIXME:
   const user = useAppSelector(selectUser) as IUser
-  const status = useAppSelector(selectUserUpdateStatus)
-  const error = useAppSelector(selectUserUpdateError)
+  const [userData, setUserData] = React.useState<IUpdateUser>(user)
+  const { email, username, bio, image, password } = userData
+
+  const [status, setStatus] = React.useState<ResponseStatus>('idle')
+  const [error, setError] = React.useState<IResError | null>(null)
+  const canUpdate =
+    [email, username, bio, image, password].some(Boolean) && status === 'idle'
 
   const navigate = useNavigate()
   const dispatch = useAppDispatch()
-
-  const [userData, setUserData] = React.useState<IUpdateUser>({
-    email: user.email,
-    username: user.username,
-    bio: user.bio,
-    image: user.image,
-  })
 
   const onFormChanged = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
@@ -39,28 +32,25 @@ const Settings: React.FC = () => {
     }))
   }
 
-  const onFormSubmitted = (e: React.FormEvent<HTMLFormElement>) => {
+  const onFormSubmitted = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    dispatch(updateUser(userData))
+    if (!canUpdate) return
+    try {
+      setError(null)
+      setStatus('loading')
+      await dispatch(updateUser(userData)).unwrap()
+      navigate(`/profile/${user.username}`, { replace: true })
+    } catch (error) {
+      setError(error as IResError)
+    } finally {
+      setStatus('idle')
+    }
   }
 
   const onLogoutClicked = () => {
     dispatch(loggedOut())
     navigate('/', { replace: true })
   }
-
-  React.useEffect(() => {
-    if (status === 'successed') {
-      dispatch(resetUserCurrentStatus())
-      navigate(`/profile/${user.username}`, { replace: true })
-    }
-  }, [dispatch, navigate, status, user.username])
-
-  React.useEffect(() => {
-    return () => {
-      dispatch(resetUserCurrentError())
-    }
-  }, [dispatch])
 
   return (
     <div className="settings-page">
@@ -123,8 +113,11 @@ const Settings: React.FC = () => {
                     onChange={e => onFormChanged(e)}
                   />
                 </fieldset>
-                <button className="btn btn-lg btn-primary pull-xs-right">
-                  Update Settings
+                <button
+                  disabled={!canUpdate}
+                  className="btn btn-lg btn-primary pull-xs-right"
+                >
+                  Update Settings {status === 'loading' && <Spinner />}
                 </button>
               </fieldset>
             </form>
