@@ -1,9 +1,8 @@
 import * as React from 'react'
-import { Link } from 'react-router-dom'
 import { useAppSelector } from '../../app/hooks'
 import { selectUser } from '../../app/slices/userSlice'
 import ErrorList from '../Error/ErrorList'
-import Button from '../UI/Button'
+import EditProfileButton from '../UI/EditProfileButton'
 import FollowButton from '../UI/FollowButton'
 import Spinner from '../UI/Spinner/Spinner'
 
@@ -29,11 +28,7 @@ const ProfileInfo: React.FC = () => {
             <h4>{profile.username}</h4>
             <p>{profile.bio}</p>
             {isUser ? (
-              <Link to="/settings">
-                <Button className="btn-outline-secondary" icon="ion-gear-a">
-                  Edit Profile Settings
-                </Button>
-              </Link>
+              <EditProfileButton />
             ) : (
               <FollowButton profile={profile} />
             )}

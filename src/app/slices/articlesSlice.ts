@@ -155,7 +155,7 @@ const articlesSlice = createSlice({
   name: 'articles',
   initialState,
   reducers: {
-    favoriteToggled: (state, action: PayloadAction<IArticle>) => {
+    articleFavoriteToggled: (state, action: PayloadAction<IArticle>) => {
       const { slug, favorited, favoritesCount } = action.payload
       const update = {
         id: slug,
@@ -211,7 +211,7 @@ const articlesSlice = createSlice({
   },
 })
 
-export const { favoriteToggled } = articlesSlice.actions
+export const { articleFavoriteToggled } = articlesSlice.actions
 
 export const {
   selectAll: selectAllArticles,

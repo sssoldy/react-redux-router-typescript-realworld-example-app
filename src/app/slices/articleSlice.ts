@@ -15,7 +15,7 @@ import { IResponseError } from '../../types/error'
 import { IProfile } from '../../types/profile'
 import { getErrorData } from '../../utils/misc'
 import { RootState } from '../store'
-import { favoriteToggled, selectArticleById } from './articlesSlice'
+import { articleFavoriteToggled, selectArticleById } from './articlesSlice'
 
 export const getArticle = createAsyncThunk<
   ISingleArticleRes,
@@ -43,7 +43,7 @@ export const favoriteArticle = createAsyncThunk<
     try {
       const { data } = await Faforites.add(slug)
       const isArticles = getState().articles.status === 'successed'
-      if (isArticles) dispatch(favoriteToggled(data.article))
+      if (isArticles) dispatch(articleFavoriteToggled(data.article))
       return data
     } catch (error: any) {
       throw error.response ? rejectWithValue(getErrorData(error)) : error
@@ -61,7 +61,7 @@ export const unfavoriteArticle = createAsyncThunk<
     try {
       const { data } = await Faforites.remove(slug)
       const isArticles = getState().articles.status === 'successed'
-      if (isArticles) dispatch(favoriteToggled(data.article))
+      if (isArticles) dispatch(articleFavoriteToggled(data.article))
       return data
     } catch (error: any) {
       throw error.response ? rejectWithValue(getErrorData(error)) : error

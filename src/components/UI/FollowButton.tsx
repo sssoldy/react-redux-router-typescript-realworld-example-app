@@ -12,15 +12,16 @@ import Spinner from './Spinner/Spinner'
 
 interface FollowButtonProps {
   profile: IProfile
-  [x: string]: any
 }
 
-const FollowButton: React.FC<FollowButtonProps> = ({ profile, ...props }) => {
+const FollowButton: React.FC<FollowButtonProps> = ({ profile }) => {
   const [status, setStatus] = React.useState<ResponseStatus>('idle')
   const [error, setError] = React.useState<IResponseError | null>(null)
-  const isFollowing = profile.following || false
+
+  const { username, following } = profile
+  const isFollowing = following || false
+  const icon = isFollowing ? 'ion-minus-round' : 'ion-plus-round'
   const canFollow = status === 'idle'
-  const { username } = profile
 
   const { auth, from } = useAuthRequire()
 
@@ -47,34 +48,18 @@ const FollowButton: React.FC<FollowButtonProps> = ({ profile, ...props }) => {
     }
   }
 
-  const followBtn = (
-    <Button
-      className="btn-outline-secondary"
-      icon="ion-plus-round"
-      disabled={!canFollow}
-      {...props}
-      onClick={onFollowClicked}
-    >
-      Follow {username} {status === 'loading' && <Spinner />}
-    </Button>
-  )
-
-  const unFollowBtn = (
-    <Button
-      className="btn-secondary"
-      icon="ion-minus-round"
-      disabled={!canFollow}
-      {...props}
-      onClick={onFollowClicked}
-    >
-      Unfollow {username} {status === 'loading' && <Spinner />}
-    </Button>
-  )
   return (
-    <React.Fragment>
-      {isFollowing ? unFollowBtn : followBtn}
+    <Button
+      isActive={isFollowing}
+      variant="secondary"
+      icon={icon}
+      disabled={!canFollow}
+      onClick={onFollowClicked}
+    >
+      {isFollowing ? 'Unfollow' : 'Follow'} {username}{' '}
+      {status === 'loading' && <Spinner />}
       <ErrorList error={error} />
-    </React.Fragment>
+    </Button>
   )
 }
 

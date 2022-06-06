@@ -14,13 +14,14 @@ const DeleteArticleButton: React.FC = () => {
 
   const [status, setStatus] = React.useState<ResponseStatus>('idle')
   const [error, setError] = React.useState<IResponseError | null>(null)
+  const canDelete = status === 'idle'
 
   const { slug } = useParams()
   const navigate = useNavigate()
   const dispatch = useAppDispatch()
 
   const onDeleteClicked = async () => {
-    if (!slug || !username) return
+    if (!slug || !username || !canDelete) return
     try {
       setError(null)
       setStatus('loading')
@@ -34,16 +35,16 @@ const DeleteArticleButton: React.FC = () => {
   }
 
   return (
-    <React.Fragment>
-      <Button
-        className="btn-outline-danger"
-        icon="ion-edit"
-        onClick={onDeleteClicked}
-      >
-        Delete Article {status === 'loading' && <Spinner />}
-      </Button>
+    <Button
+      isActive={false}
+      variant="danger"
+      icon="ion-edit"
+      disabled={!canDelete}
+      onClick={onDeleteClicked}
+    >
+      Delete Article {status === 'loading' && <Spinner />}
       <ErrorList error={error} />
-    </React.Fragment>
+    </Button>
   )
 }
 
