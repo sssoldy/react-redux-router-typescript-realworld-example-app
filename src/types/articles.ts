@@ -1,5 +1,5 @@
-import { IResFilter, ResponseStatus } from './api'
-import { IResError } from './error'
+import { IAxiosArticlesConfig, IResponseFilter, ResponseStatus } from './api'
+import { IResponseError } from './error'
 import { IProfile } from './profile'
 
 export interface IArticle {
@@ -49,12 +49,13 @@ export interface IUpdateArticleReq {
 
 export interface IArticlesState {
   status: ResponseStatus
-  error: IResError | null
-  filter: IResFilter
+  error: IResponseError | null
+  config: IAxiosArticlesConfig | null
+  filter: IResponseFilter | null
 }
 
 export interface IArticleState {
   article: IArticle | null
   status: ResponseStatus
-  error: IResError | null
+  error: IResponseError | null
 }

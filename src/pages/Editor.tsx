@@ -7,7 +7,7 @@ import Spinner from '../components/UI/Spinner/Spinner'
 import { useLocationState } from '../hooks/useLocationState'
 import { ResponseStatus } from '../types/api'
 import { INewArticleReq, IUpdateArticleReq } from '../types/articles'
-import { IResError } from '../types/error'
+import { IResponseError } from '../types/error'
 import { IEditArticleState } from '../types/locationState'
 
 const Editor: React.FC = () => {
@@ -25,7 +25,7 @@ const Editor: React.FC = () => {
 
   const [article, setArticle] = React.useState(initialState)
   const [status, setStatus] = React.useState<ResponseStatus>('idle')
-  const [error, setError] = React.useState<IResError | null>(null)
+  const [error, setError] = React.useState<IResponseError | null>(null)
 
   const navigate = useNavigate()
   const dispatch = useAppDispatch()
@@ -61,7 +61,7 @@ const Editor: React.FC = () => {
       const { slug } = data.article
       navigate(`/article/${slug}`, { replace: true })
     } catch (error) {
-      setError(error as IResError)
+      setError(error as IResponseError)
     } finally {
       setStatus('idle')
     }

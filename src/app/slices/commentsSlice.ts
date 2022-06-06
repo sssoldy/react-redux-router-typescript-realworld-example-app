@@ -10,7 +10,7 @@ import {
   IDelCommentReq,
   INewCommentReq,
 } from '../../types/comments'
-import { IResError } from '../../types/error'
+import { IResponseError } from '../../types/error'
 import { getErrorData } from '../../utils/misc'
 import { RootState } from '../store'
 
@@ -71,7 +71,7 @@ const commentsSlice = createSlice({
       })
       .addCase(getComments.rejected, (state, action) => {
         state.status = 'failed'
-        state.error = action.payload as IResError
+        state.error = action.payload as IResponseError
       })
       .addCase(getComments.fulfilled, (state, action) => {
         state.status = 'successed'

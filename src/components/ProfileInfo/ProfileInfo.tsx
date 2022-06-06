@@ -1,36 +1,18 @@
 import * as React from 'react'
-import { Link, useParams } from 'react-router-dom'
-import { useAppDispatch, useAppSelector } from '../../app/hooks'
-import {
-  selectProfile,
-  selectProfileStatus,
-  selectProfileError,
-  getProfile,
-} from '../../app/slices/profileSlice'
+import { Link } from 'react-router-dom'
+import { useAppSelector } from '../../app/hooks'
 import { selectUser } from '../../app/slices/userSlice'
-import { profileFallbackData } from '../../utils/fallbackData'
 import ErrorList from '../Error/ErrorList'
 import Button from '../UI/Button'
 import FollowButton from '../UI/FollowButton'
+import Spinner from '../UI/Spinner/Spinner'
 
 const ProfileInfo: React.FC = () => {
-  let profile = useAppSelector(selectProfile)
-  const status = useAppSelector(selectProfileStatus)
-  const error = useAppSelector(selectProfileError)
+  const { profile, status, error } = useAppSelector(state => state.profile)
   const user = useAppSelector(selectUser)
   const isUser = profile?.username === user?.username
 
-  const { username } = useParams()
-
-  const dispatch = useAppDispatch()
-
-  React.useEffect(() => {
-    if (username) {
-      dispatch(getProfile(username))
-    }
-  }, [dispatch, username])
-
-  if (status === 'loading') profile = profileFallbackData
+  if (status === 'loading') return <Spinner />
   if (status === 'failed') return <ErrorList error={error} />
   if (!profile) return <div>Profile not found</div>
 

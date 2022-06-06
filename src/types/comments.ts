@@ -1,5 +1,5 @@
 import { ResponseStatus } from './api'
-import { IResError } from './error'
+import { IResponseError } from './error'
 import { IProfile } from './profile'
 
 export interface IComment {
@@ -34,5 +34,5 @@ export interface IDelCommentReq {
 
 export interface ICommentsState {
   status: ResponseStatus
-  error: IResError | null
+  error: IResponseError | null
 }

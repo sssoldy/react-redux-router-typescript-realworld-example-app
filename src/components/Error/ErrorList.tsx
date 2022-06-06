@@ -1,12 +1,12 @@
 import * as React from 'react'
 import {
   IGenericResError,
-  IResError,
+  IResponseError,
   IUnexpectedResError,
 } from '../../types/error'
 
 interface ErrorListProps {
-  error: IResError | null
+  error: IResponseError | null
 }
 
 const ErrorList: React.FC<ErrorListProps> = ({ error }) => {

@@ -1,19 +1,19 @@
 import { AxiosResponse } from 'axios'
 import * as React from 'react'
 import { ResponseStatus } from '../types/api'
-import { IResError } from '../types/error'
+import { IResponseError } from '../types/error'
 import { getErrorData } from '../utils/misc'
 
 type InitialState<D> = {
   data?: D | null
   status?: ResponseStatus
-  error?: IResError | null
+  error?: IResponseError | null
 }
 
 type DefaultState<D> = {
   data: D | null
   status: ResponseStatus
-  error: IResError | null
+  error: IResponseError | null
 }
 
 function useAsync<T>(initialState?: InitialState<T>) {
@@ -34,7 +34,7 @@ function useAsync<T>(initialState?: InitialState<T>) {
     [dispatch],
   )
   const setError = React.useCallback(
-    (error: IResError | null) =>
+    (error: IResponseError | null) =>
       dispatch({ data: null, status: 'failed', error }),
     [dispatch],
   )
@@ -48,7 +48,7 @@ function useAsync<T>(initialState?: InitialState<T>) {
           setData(response.data)
           return response.data
         },
-        (error: IResError | null) => {
+        (error: IResponseError | null) => {
           setError(getErrorData(error))
           return Promise.reject(error)
         },

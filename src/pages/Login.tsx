@@ -6,7 +6,7 @@ import ErrorList from '../components/Error/ErrorList'
 import Spinner from '../components/UI/Spinner/Spinner'
 import { useLocationState } from '../hooks/useLocationState'
 import { ResponseStatus } from '../types/api'
-import { IResError } from '../types/error'
+import { IResponseError } from '../types/error'
 import { IFromState } from '../types/locationState'
 import { ILoginUser } from '../types/user'
 
@@ -18,7 +18,7 @@ const Login: React.FC = () => {
   const { email, password } = user
 
   const [status, setStatus] = React.useState<ResponseStatus>('idle')
-  const [error, setError] = React.useState<IResError | null>(null)
+  const [error, setError] = React.useState<IResponseError | null>(null)
   const canLogin = [email, password].every(Boolean) && status === 'idle'
 
   const locationState = useLocationState<IFromState>()
@@ -44,7 +44,7 @@ const Login: React.FC = () => {
       await dispatch(loginUser({ user: user })).unwrap()
       navigate(from, { replace: true })
     } catch (error) {
-      setError(error as IResError)
+      setError(error as IResponseError)
     } finally {
       setStatus('idle')
     }

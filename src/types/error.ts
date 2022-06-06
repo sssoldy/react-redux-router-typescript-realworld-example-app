@@ -8,7 +8,7 @@ export interface IUnexpectedResError {
   status: string
   message: string
 }
-export interface IResError {
+export interface IResponseError {
   name: string
   status: number
   message: string

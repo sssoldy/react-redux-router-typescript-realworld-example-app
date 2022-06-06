@@ -6,7 +6,7 @@ import ErrorList from '../components/Error/ErrorList'
 import Spinner from '../components/UI/Spinner/Spinner'
 import { useLocationState } from '../hooks/useLocationState'
 import { ResponseStatus } from '../types/api'
-import { IResError } from '../types/error'
+import { IResponseError } from '../types/error'
 import { IFromState } from '../types/locationState'
 import { IRegisterUser } from '../types/user'
 
@@ -19,7 +19,7 @@ const Register: React.FC = () => {
   const { username, email, password } = user
 
   const [status, setStatus] = React.useState<ResponseStatus>('idle')
-  const [error, setError] = React.useState<IResError | null>(null)
+  const [error, setError] = React.useState<IResponseError | null>(null)
   const canRegister =
     [username, email, password].every(Boolean) && status === 'idle'
 
@@ -46,7 +46,7 @@ const Register: React.FC = () => {
       await dispatch(registerUser({ user: user })).unwrap()
       navigate(from, { replace: true })
     } catch (error) {
-      setError(error as IResError)
+      setError(error as IResponseError)
     } finally {
       setStatus('idle')
     }

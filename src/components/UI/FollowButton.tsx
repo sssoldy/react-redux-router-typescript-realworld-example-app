@@ -4,7 +4,7 @@ import { useAppDispatch } from '../../app/hooks'
 import { followProfile, unfollowProfile } from '../../app/slices/profileSlice'
 import { useAuthRequire } from '../../hooks/useAuthRequire'
 import { ResponseStatus } from '../../types/api'
-import { IResError } from '../../types/error'
+import { IResponseError } from '../../types/error'
 import { IProfile } from '../../types/profile'
 import ErrorList from '../Error/ErrorList'
 import Button from './Button'
@@ -17,7 +17,7 @@ interface FollowButtonProps {
 
 const FollowButton: React.FC<FollowButtonProps> = ({ profile, ...props }) => {
   const [status, setStatus] = React.useState<ResponseStatus>('idle')
-  const [error, setError] = React.useState<IResError | null>(null)
+  const [error, setError] = React.useState<IResponseError | null>(null)
   const isFollowing = profile.following || false
   const canFollow = status === 'idle'
   const { username } = profile
@@ -41,7 +41,7 @@ const FollowButton: React.FC<FollowButtonProps> = ({ profile, ...props }) => {
         : await dispatch(followProfile(username)).unwrap()
       setStatus('successed')
     } catch (error) {
-      setError(error as IResError)
+      setError(error as IResponseError)
     } finally {
       setStatus('idle')
     }

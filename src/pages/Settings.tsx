@@ -5,7 +5,7 @@ import { loggedOut, selectUser, updateUser } from '../app/slices/userSlice'
 import ErrorList from '../components/Error/ErrorList'
 import Spinner from '../components/UI/Spinner/Spinner'
 import { ResponseStatus } from '../types/api'
-import { IResError } from '../types/error'
+import { IResponseError } from '../types/error'
 import { IUpdateUser, IUser } from '../types/user'
 
 // TODO: something wrong with API. Have to research dependencies
@@ -15,7 +15,7 @@ const Settings: React.FC = () => {
   const { email, username, bio, image, password } = userData
 
   const [status, setStatus] = React.useState<ResponseStatus>('idle')
-  const [error, setError] = React.useState<IResError | null>(null)
+  const [error, setError] = React.useState<IResponseError | null>(null)
   const canUpdate =
     [email, username, bio, image, password].some(Boolean) && status === 'idle'
 
@@ -41,7 +41,7 @@ const Settings: React.FC = () => {
       await dispatch(updateUser(userData)).unwrap()
       navigate(`/profile/${user.username}`, { replace: true })
     } catch (error) {
-      setError(error as IResError)
+      setError(error as IResponseError)
     } finally {
       setStatus('idle')
     }

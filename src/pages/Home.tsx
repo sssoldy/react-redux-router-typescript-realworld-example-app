@@ -1,9 +1,28 @@
 import * as React from 'react'
 import ArticleList from '../components/Article/ArticleList'
-import ArticleFilter from '../components/Article/ArticleFilter'
 import PopularTags from '../components/Tag/PopularTags'
+import { useAppDispatch, useAppSelector } from '../app/hooks'
+import { selectUserToken } from '../app/slices/userSlice'
+import {
+  getUserFeedArticles,
+  getAllArticles,
+} from '../app/slices/articlesSlice'
+import HomeFilterTabs from '../components/FilterTabs/HomeFilterTabs'
 
 const Home: React.FC = () => {
+  const token = useAppSelector(selectUserToken)
+
+  const dispatch = useAppDispatch()
+
+  React.useEffect(() => {
+    const promise = token
+      ? dispatch(getUserFeedArticles())
+      : dispatch(getAllArticles())
+    return () => {
+      promise.abort()
+    }
+  }, [dispatch, token])
+
   return (
     <div className="home-page">
       <div className="banner">
@@ -16,7 +35,7 @@ const Home: React.FC = () => {
       <div className="container page">
         <div className="row">
           <div className="col-md-9">
-            <ArticleFilter />
+            <HomeFilterTabs />
             <ArticleList />
           </div>
 

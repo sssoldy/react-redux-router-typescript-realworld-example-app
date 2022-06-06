@@ -1,5 +1,5 @@
 import { ResponseStatus } from './api'
-import { IResError } from './error'
+import { IResponseError } from './error'
 
 export interface IProfile {
   username: string
@@ -15,5 +15,5 @@ export interface IProfileRes {
 export interface IProfileState {
   profile: IProfile | null
   status: ResponseStatus
-  error: IResError | null
+  error: IResponseError | null
 }

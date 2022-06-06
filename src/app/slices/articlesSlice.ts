@@ -9,32 +9,33 @@ import {
   PayloadAction,
 } from '@reduxjs/toolkit'
 import { Articles } from '../../services/conduit'
-import { IResFilter } from '../../types/api'
+import { IAxiosArticleConfigMeta, IResponseFilterMeta } from '../../types/api'
 import { IArticle, IArticlesState } from '../../types/articles'
-import { IResError } from '../../types/error'
-import { getErrorData } from '../../utils/misc'
+import { IResponseError } from '../../types/error'
+import { getConfigData, getErrorData } from '../../utils/misc'
 import { RootState } from '../store'
 
 export const getAllArticles = createAsyncThunk<
   Array<IArticle>,
   void,
   {
-    rejectValue: IResError
-    pendingMeta: IResFilter
+    pendingMeta: IResponseFilterMeta
+    rejectValue: IResponseError
+    fulfilledMeta: IAxiosArticleConfigMeta
   }
 >(
   'articles/getAllArticles',
-  async (_, { rejectWithValue }) => {
+  async (_, { rejectWithValue, fulfillWithValue }) => {
     try {
-      const { data } = await Articles.all()
-      return data.articles
+      const response = await Articles.all()
+      return fulfillWithValue(response.data.articles, getConfigData(response))
     } catch (error: any) {
       throw error.response ? rejectWithValue(getErrorData(error)) : error
     }
   },
   {
     getPendingMeta() {
-      return { by: 'global' }
+      return { filter: { type: 'global', arg: null } }
     },
   },
 )
@@ -42,20 +43,24 @@ export const getAllArticles = createAsyncThunk<
 export const getUserFeedArticles = createAsyncThunk<
   Array<IArticle>,
   void,
-  { rejectValue: IResError; pendingMeta: IResFilter }
+  {
+    pendingMeta: IResponseFilterMeta
+    rejectValue: IResponseError
+    fulfilledMeta: IAxiosArticleConfigMeta
+  }
 >(
   'articles/getUserFeedArticles',
-  async (_, { rejectWithValue }) => {
+  async (_, { rejectWithValue, fulfillWithValue }) => {
     try {
-      const { data } = await Articles.feed()
-      return data.articles
+      const response = await Articles.feed()
+      return fulfillWithValue(response.data.articles, getConfigData(response))
     } catch (error: any) {
       throw error.response ? rejectWithValue(getErrorData(error)) : error
     }
   },
   {
     getPendingMeta() {
-      return { by: 'feed' }
+      return { filter: { type: 'feed', arg: null } }
     },
   },
 )
@@ -64,22 +69,23 @@ export const getProfileArticles = createAsyncThunk<
   Array<IArticle>,
   string,
   {
-    rejectValue: IResError
-    pendingMeta: IResFilter
+    pendingMeta: IResponseFilterMeta
+    rejectValue: IResponseError
+    fulfilledMeta: IAxiosArticleConfigMeta
   }
 >(
   'articles/getProfileArticles',
-  async (username, { rejectWithValue }) => {
+  async (username, { rejectWithValue, fulfillWithValue }) => {
     try {
-      const { data } = await Articles.profile(username)
-      return data.articles
+      const response = await Articles.profile(username)
+      return fulfillWithValue(response.data.articles, getConfigData(response))
     } catch (error: any) {
       throw error.response ? rejectWithValue(getErrorData(error)) : error
     }
   },
   {
-    getPendingMeta() {
-      return { by: 'author' }
+    getPendingMeta(base) {
+      return { filter: { type: 'author', arg: base.arg } }
     },
   },
 )
@@ -88,22 +94,23 @@ export const getFavoritedArticles = createAsyncThunk<
   Array<IArticle>,
   string,
   {
-    rejectValue: IResError
-    pendingMeta: IResFilter
+    pendingMeta: IResponseFilterMeta
+    rejectValue: IResponseError
+    fulfilledMeta: IAxiosArticleConfigMeta
   }
 >(
   'articles/getFavoritedArticles',
-  async (username, { rejectWithValue }) => {
+  async (username, { rejectWithValue, fulfillWithValue }) => {
     try {
-      const { data } = await Articles.favorited(username)
-      return data.articles
+      const response = await Articles.favorited(username)
+      return fulfillWithValue(response.data.articles, getConfigData(response))
     } catch (error: any) {
       throw error.response ? rejectWithValue(getErrorData(error)) : error
     }
   },
   {
-    getPendingMeta() {
-      return { by: 'favorited' }
+    getPendingMeta(base) {
+      return { filter: { type: 'favorited', arg: base.arg } }
     },
   },
 )
@@ -112,22 +119,23 @@ export const getTaggedArticles = createAsyncThunk<
   Array<IArticle>,
   string,
   {
-    rejectValue: IResError
-    pendingMeta: IResFilter
+    pendingMeta: IResponseFilterMeta
+    rejectValue: IResponseError
+    fulfilledMeta: IAxiosArticleConfigMeta
   }
 >(
   'articles/getTaggedArticles',
-  async (tag, { rejectWithValue }) => {
+  async (tag, { rejectWithValue, fulfillWithValue }) => {
     try {
-      const { data } = await Articles.tag(tag)
-      return data.articles
+      const response = await Articles.tag(tag)
+      return fulfillWithValue(response.data.articles, getConfigData(response))
     } catch (error: any) {
       throw error.response ? rejectWithValue(getErrorData(error)) : error
     }
   },
   {
-    getPendingMeta() {
-      return { by: 'tag' }
+    getPendingMeta(base) {
+      return { filter: { type: 'tag', arg: base.arg } }
     },
   },
 )
@@ -139,7 +147,8 @@ const articlesAdapter = createEntityAdapter<IArticle>({
 const initialState = articlesAdapter.getInitialState<IArticlesState>({
   status: 'idle',
   error: null,
-  filter: { by: null },
+  config: null,
+  filter: null,
 })
 
 const articlesSlice = createSlice({
@@ -167,8 +176,7 @@ const articlesSlice = createSlice({
         ),
         (state, action) => {
           state.status = 'loading'
-          state.filter.by = action.meta.by
-          state.filter.query = action.meta.arg ?? undefined
+          state.filter = action.meta.filter
         },
       )
       .addMatcher(
@@ -195,6 +203,7 @@ const articlesSlice = createSlice({
         (state, action) => {
           state.status = 'successed'
           state.error = null
+          state.config = action.meta.config
           // FIXME:
           articlesAdapter.setAll(state, action.payload)
         },

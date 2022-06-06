@@ -8,7 +8,7 @@ import {
 import { useAuthRequire } from '../../hooks/useAuthRequire'
 import { ResponseStatus } from '../../types/api'
 import { IArticle } from '../../types/articles'
-import { IResError } from '../../types/error'
+import { IResponseError } from '../../types/error'
 import ErrorList from '../Error/ErrorList'
 import Button from './Button'
 import Spinner from './Spinner/Spinner'
@@ -27,7 +27,7 @@ const FavoriteButton: React.FC<FavoriteButtonProps> = ({
   ...props
 }) => {
   const [status, setStatus] = React.useState<ResponseStatus>('idle')
-  const [error, setError] = React.useState<IResError | null>(null)
+  const [error, setError] = React.useState<IResponseError | null>(null)
   const isFavorited = article.favorited || false
   const canFavorite = status === 'idle'
 
@@ -51,7 +51,7 @@ const FavoriteButton: React.FC<FavoriteButtonProps> = ({
         : await dispatch(favoriteArticle(article.slug)).unwrap()
       setStatus('successed')
     } catch (error) {
-      setError(error as IResError)
+      setError(error as IResponseError)
     } finally {
       setStatus('idle')
     }

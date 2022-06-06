@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice, isFulfilled } from '@reduxjs/toolkit'
 import { Profile } from '../../services/conduit'
-import { IResError } from '../../types/error'
+import { IResponseError } from '../../types/error'
 import { IProfile, IProfileState } from '../../types/profile'
 import { IUser } from '../../types/user'
 import { getErrorData } from '../../utils/misc'
@@ -11,7 +11,7 @@ import { selectArticleByUsername } from './articlesSlice'
 export const getProfile = createAsyncThunk<
   IProfile,
   string,
-  { state: RootState; rejectValue: IResError }
+  { state: RootState; rejectValue: IResponseError }
 >(
   'profile/getProfile',
   async (username: string, { getState, rejectWithValue }) => {
@@ -39,7 +39,7 @@ export const getProfile = createAsyncThunk<
 export const followProfile = createAsyncThunk<
   IProfile,
   string,
-  { state: RootState; rejectValue: IResError }
+  { state: RootState; rejectValue: IResponseError }
 >(
   'profile/followProfile',
   async (username: string, { getState, dispatch, rejectWithValue }) => {
@@ -59,7 +59,7 @@ export const followProfile = createAsyncThunk<
 export const unfollowProfile = createAsyncThunk<
   IProfile,
   string,
-  { state: RootState; rejectValue: IResError }
+  { state: RootState; rejectValue: IResponseError }
 >(
   'profile/unfollowProfile',
   async (username: string, { getState, dispatch, rejectWithValue }) => {

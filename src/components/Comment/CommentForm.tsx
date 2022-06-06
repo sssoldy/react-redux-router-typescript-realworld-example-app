@@ -4,7 +4,7 @@ import { useAppDispatch } from '../../app/hooks'
 import { addComment } from '../../app/slices/commentsSlice'
 import { ResponseStatus } from '../../types/api'
 import { INewComment } from '../../types/comments'
-import { IResError } from '../../types/error'
+import { IResponseError } from '../../types/error'
 import { IUser } from '../../types/user'
 import ErrorList from '../Error/ErrorList'
 import Spinner from '../UI/Spinner/Spinner'
@@ -16,7 +16,7 @@ interface CommentFormProps {
 const CommentForm: React.FC<CommentFormProps> = ({ user }) => {
   const [comment, setComment] = React.useState<INewComment>({ body: '' })
   const [status, setStatus] = React.useState<ResponseStatus>('idle')
-  const [error, setError] = React.useState<IResError | null>(null)
+  const [error, setError] = React.useState<IResponseError | null>(null)
   const canPost = Boolean(comment.body) && status !== 'loading'
 
   const { slug } = useParams()
@@ -38,7 +38,7 @@ const CommentForm: React.FC<CommentFormProps> = ({ user }) => {
       setStatus('successed')
       setComment({ body: '' })
     } catch (error) {
-      setError(error as IResError)
+      setError(error as IResponseError)
     } finally {
       setStatus('idle')
     }

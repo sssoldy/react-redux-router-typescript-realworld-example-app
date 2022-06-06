@@ -11,7 +11,7 @@ import {
   ISingleArticleRes,
   IUpdateArticleReq,
 } from '../../types/articles'
-import { IResError } from '../../types/error'
+import { IResponseError } from '../../types/error'
 import { IProfile } from '../../types/profile'
 import { getErrorData } from '../../utils/misc'
 import { RootState } from '../store'
@@ -20,7 +20,7 @@ import { favoriteToggled, selectArticleById } from './articlesSlice'
 export const getArticle = createAsyncThunk<
   ISingleArticleRes,
   string,
-  { state: RootState; rejectValue: IResError }
+  { state: RootState; rejectValue: IResponseError }
 >('article/getArticle', async (slug: string, { getState, rejectWithValue }) => {
   const article = selectArticleById(getState(), slug)
   if (article) return { article }
@@ -36,7 +36,7 @@ export const getArticle = createAsyncThunk<
 export const favoriteArticle = createAsyncThunk<
   ISingleArticleRes,
   string,
-  { state: RootState; rejectValue: IResError }
+  { state: RootState; rejectValue: IResponseError }
 >(
   'article/favoriteArticle',
   async (slug: string, { getState, dispatch, rejectWithValue }) => {
@@ -54,7 +54,7 @@ export const favoriteArticle = createAsyncThunk<
 export const unfavoriteArticle = createAsyncThunk<
   ISingleArticleRes,
   string,
-  { state: RootState; rejectValue: IResError }
+  { state: RootState; rejectValue: IResponseError }
 >(
   'article/unfavoriteArticle',
   async (slug: string, { getState, dispatch, rejectWithValue }) => {
@@ -128,7 +128,7 @@ const articleSlice = createSlice({
       })
       .addCase(getArticle.rejected, (state, action) => {
         state.status = 'failed'
-        state.error = action.payload as IResError
+        state.error = action.payload as IResponseError
       })
       .addCase(getArticle.fulfilled, (state, action) => {
         state.status = 'successed'

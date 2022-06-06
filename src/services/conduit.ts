@@ -1,5 +1,6 @@
 import axios from 'axios'
 import { store } from '../app/store'
+import { IAxiosArticlesConfig } from '../types/api'
 import {
   IMultiArticlesRes,
   INewArticleReq,
@@ -68,23 +69,39 @@ export const Profile = {
 // Articles
 export const Articles = {
   feed: async () =>
-    await axios.get<IMultiArticlesRes>('articles/feed?limit=20&offset=0'),
+    await axios.request<IMultiArticlesRes>({
+      method: 'get',
+      url: 'articles/feed',
+      params: { limit: 20, offset: 0 },
+    } as IAxiosArticlesConfig),
 
   profile: async (username: string) =>
-    await axios.get<IMultiArticlesRes>(
-      `articles?author=${username}&limit=20&offset=0`,
-    ),
+    await axios.request<IMultiArticlesRes>({
+      method: 'get',
+      url: 'articles',
+      params: { limit: 20, offset: 0, author: username },
+    } as IAxiosArticlesConfig),
 
   favorited: async (username: string) =>
-    await axios.get<IMultiArticlesRes>(
-      `articles?favorited=${username}&limit=20&offset=0`,
-    ),
+    await axios.request<IMultiArticlesRes>({
+      method: 'get',
+      url: 'articles',
+      params: { limit: 20, offset: 0, favorited: username },
+    } as IAxiosArticlesConfig),
 
   tag: async (tag: string) =>
-    await axios.get<IMultiArticlesRes>(`articles?tag=${tag}&limit=20&offset=0`),
+    await axios.request<IMultiArticlesRes>({
+      method: 'get',
+      url: 'articles',
+      params: { limit: 20, offset: 0, tag: tag },
+    } as IAxiosArticlesConfig),
 
   all: async () =>
-    await axios.get<IMultiArticlesRes>('articles?limit=20&offset=0'),
+    await axios.request<IMultiArticlesRes>({
+      method: 'get',
+      url: 'articles',
+      params: { limit: 20, offset: 0 },
+    } as IAxiosArticlesConfig),
 
   single: async (slug: string) =>
     await axios.get<ISingleArticleRes>(`articles/${slug}`),

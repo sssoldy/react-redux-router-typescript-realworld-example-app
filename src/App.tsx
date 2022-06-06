@@ -16,11 +16,11 @@ import Profile from './pages/Profile'
 import Register from './pages/Register'
 import Settings from './pages/Settings'
 import { ResponseStatus } from './types/api'
-import { IResError } from './types/error'
+import { IResponseError } from './types/error'
 
 const App: React.FC = () => {
   const [status, setStatus] = React.useState<ResponseStatus>('idle')
-  const [error, setError] = React.useState<IResError | null>(null)
+  const [error, setError] = React.useState<IResponseError | null>(null)
   const token = localStorage.getItem('jwt')
 
   const dispatch = useAppDispatch()
@@ -34,7 +34,7 @@ const App: React.FC = () => {
           setStatus('successed')
         } catch (error) {
           setStatus('failed')
-          setError(error as IResError)
+          setError(error as IResponseError)
         }
       })()
     }

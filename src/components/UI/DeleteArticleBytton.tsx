@@ -4,7 +4,7 @@ import { useAppDispatch, useAppSelector } from '../../app/hooks'
 import { deleteArticle } from '../../app/slices/articleSlice'
 import { selectUsername } from '../../app/slices/userSlice'
 import { ResponseStatus } from '../../types/api'
-import { IResError } from '../../types/error'
+import { IResponseError } from '../../types/error'
 import ErrorList from '../Error/ErrorList'
 import Button from './Button'
 import Spinner from './Spinner/Spinner'
@@ -13,7 +13,7 @@ const DeleteArticleButton: React.FC = () => {
   const username = useAppSelector(selectUsername)
 
   const [status, setStatus] = React.useState<ResponseStatus>('idle')
-  const [error, setError] = React.useState<IResError | null>(null)
+  const [error, setError] = React.useState<IResponseError | null>(null)
 
   const { slug } = useParams()
   const navigate = useNavigate()
@@ -27,7 +27,7 @@ const DeleteArticleButton: React.FC = () => {
       await dispatch(deleteArticle(slug)).unwrap()
       navigate(`/profile/${username}`)
     } catch (error) {
-      setError(error as IResError)
+      setError(error as IResponseError)
     } finally {
       setStatus('idle')
     }

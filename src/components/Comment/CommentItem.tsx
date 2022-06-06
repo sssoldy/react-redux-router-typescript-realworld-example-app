@@ -8,7 +8,7 @@ import {
 } from '../../app/slices/commentsSlice'
 import { selectUsername } from '../../app/slices/userSlice'
 import { ResponseStatus } from '../../types/api'
-import { IResError } from '../../types/error'
+import { IResponseError } from '../../types/error'
 import { formatDate } from '../../utils/misc'
 import ErrorList from '../Error/ErrorList'
 import Spinner from '../UI/Spinner/Spinner'
@@ -23,7 +23,7 @@ const CommentItem: React.FC<CommentItemProps> = ({ commentId }) => {
   const isUserComment = comment?.author.username === username
 
   const [status, setStatus] = React.useState<ResponseStatus>('idle')
-  const [error, setError] = React.useState<IResError | null>(null)
+  const [error, setError] = React.useState<IResponseError | null>(null)
   const canDelete = status !== 'loading'
 
   const { slug } = useParams()
@@ -40,7 +40,7 @@ const CommentItem: React.FC<CommentItemProps> = ({ commentId }) => {
       await dispatch(deleteComment({ slug, id: comment.id })).unwrap()
       setStatus('successed')
     } catch (error) {
-      setError(error as IResError)
+      setError(error as IResponseError)
     } finally {
       setStatus('idle')
     }
