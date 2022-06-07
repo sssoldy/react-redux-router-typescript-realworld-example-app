@@ -5,9 +5,11 @@ import {
   selectArticlesStatus,
   selectArticlesError,
 } from '../../app/slices/articlesSlice'
+
 import ErrorList from '../Error/ErrorList'
 import ListSpinner from '../UI/Spinner/ListSpinner'
 import ArticlePreview from './ArticlePreview'
+import InfinityScroll from '../InfinityScroll/InfinityScroll'
 
 const ArticleList: React.FC = () => {
   const articleIds = useAppSelector(selectArticlesIds)
@@ -23,6 +25,7 @@ const ArticleList: React.FC = () => {
       {articleIds.map(id => (
         <ArticlePreview key={id} id={id} />
       ))}
+      <InfinityScroll />
     </React.Fragment>
   )
 }

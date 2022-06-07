@@ -9,7 +9,11 @@ import {
   PayloadAction,
 } from '@reduxjs/toolkit'
 import { Articles } from '../../services/conduit'
-import { IAxiosArticleConfigMeta, IResponseFilterMeta } from '../../types/api'
+import {
+  IAxiosArticleConfigMeta,
+  IAxiosArticlesConfig,
+  IResponseFilterMeta,
+} from '../../types/api'
 import { IArticle, IArticlesState } from '../../types/articles'
 import { IResponseError } from '../../types/error'
 import { getConfigData, getErrorData } from '../../utils/misc'
@@ -140,6 +144,31 @@ export const getTaggedArticles = createAsyncThunk<
   },
 )
 
+export const getArticlesByQuery = createAsyncThunk<
+  Array<IArticle>,
+  IAxiosArticlesConfig,
+  {
+    pendingMeta: IResponseFilterMeta
+    rejectValue: IResponseError
+    fulfilledMeta: IAxiosArticleConfigMeta
+  }
+>(
+  'articles/getArticlesByQuery',
+  async (query, { rejectWithValue, fulfillWithValue }) => {
+    try {
+      const response = await Articles.query(query)
+      return fulfillWithValue(response.data.articles, getConfigData(response))
+    } catch (error: any) {
+      throw error.response ? rejectWithValue(getErrorData(error)) : error
+    }
+  },
+  {
+    getPendingMeta() {
+      return { filter: { type: 'global', arg: null } }
+    },
+  },
+)
+
 const articlesAdapter = createEntityAdapter<IArticle>({
   selectId: state => state.slug,
 })
@@ -204,10 +233,13 @@ const articlesSlice = createSlice({
           state.status = 'successed'
           state.error = null
           state.config = action.meta.config
-          // FIXME:
           articlesAdapter.setAll(state, action.payload)
         },
       )
+      .addMatcher(isFulfilled(getArticlesByQuery), (state, action) => {
+        state.config = action.meta.config
+        articlesAdapter.addMany(state, action.payload)
+      })
   },
 })
 
@@ -228,5 +260,6 @@ export const selectArticleByUsername = createSelector(
 export const selectArticlesStatus = (state: RootState) => state.articles.status
 export const selectArticlesError = (state: RootState) => state.articles.error
 export const selectArticlesFilter = (state: RootState) => state.articles.filter
+export const selectArticlesConfig = (state: RootState) => state.articles.config
 
 export default articlesSlice.reducer
