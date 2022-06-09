@@ -1,10 +1,8 @@
 import * as React from 'react'
 import { useParams } from 'react-router-dom'
-import { useAppDispatch } from '../../app/hooks'
 import { addComment } from '../../app/slices/commentsSlice'
-import { ResponseStatus } from '../../types/api'
+import { useAsyncThunk } from '../../hooks/useAsyncThunk'
 import { INewComment } from '../../types/comments'
-import { IResponseError } from '../../types/error'
 import { IUser } from '../../types/user'
 import ErrorList from '../Error/ErrorList'
 import Spinner from '../UI/Spinner/Spinner'
@@ -15,13 +13,10 @@ interface CommentFormProps {
 
 const CommentForm: React.FC<CommentFormProps> = ({ user }) => {
   const [comment, setComment] = React.useState<INewComment>({ body: '' })
-  const [status, setStatus] = React.useState<ResponseStatus>('idle')
-  const [error, setError] = React.useState<IResponseError | null>(null)
-  const canPost = Boolean(comment.body) && status !== 'loading'
+  const { isIdle, isLoading, error, run } = useAsyncThunk()
+  const canPost = Boolean(comment.body) && isIdle
 
   const { slug } = useParams()
-
-  const dispatch = useAppDispatch()
 
   const onTextAreaChanged = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const { name, value } = e.target
@@ -31,17 +26,8 @@ const CommentForm: React.FC<CommentFormProps> = ({ user }) => {
   const onFormSubmitted = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     if (!slug || !canPost) return
-    try {
-      setStatus('loading')
-      setError(null)
-      await dispatch(addComment({ slug, comment })).unwrap()
-      setStatus('successed')
-      setComment({ body: '' })
-    } catch (error) {
-      setError(error as IResponseError)
-    } finally {
-      setStatus('idle')
-    }
+    await run(addComment({ slug, comment }))
+    setComment({ body: '' })
   }
 
   return (
@@ -64,7 +50,7 @@ const CommentForm: React.FC<CommentFormProps> = ({ user }) => {
             alt={user.username}
           />
           <button disabled={!canPost} className="btn btn-sm btn-primary">
-            {status === 'loading' && <Spinner />} Post Comment
+            {isLoading && <Spinner />} Post Comment
           </button>
         </div>
       </form>

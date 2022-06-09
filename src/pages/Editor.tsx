@@ -1,13 +1,11 @@
 import * as React from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useAppDispatch } from '../app/hooks'
 import { addNewArticle, updateArticle } from '../app/slices/articleSlice'
 import ErrorList from '../components/Error/ErrorList'
 import Spinner from '../components/UI/Spinner/Spinner'
+import { useAsyncThunk } from '../hooks/useAsyncThunk'
 import { useLocationState } from '../hooks/useLocationState'
-import { ResponseStatus } from '../types/api'
 import { INewArticleReq, IUpdateArticleReq } from '../types/articles'
-import { IResponseError } from '../types/error'
 import { IEditArticleState } from '../types/locationState'
 
 const Editor: React.FC = () => {
@@ -24,11 +22,9 @@ const Editor: React.FC = () => {
   }
 
   const [article, setArticle] = React.useState(initialState)
-  const [status, setStatus] = React.useState<ResponseStatus>('idle')
-  const [error, setError] = React.useState<IResponseError | null>(null)
+  const { isLoading, error, run } = useAsyncThunk()
 
   const navigate = useNavigate()
-  const dispatch = useAppDispatch()
 
   const onInputChanged = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
@@ -45,26 +41,20 @@ const Editor: React.FC = () => {
 
     const tagList = article.tagList.split(', ')
 
-    try {
-      setStatus('loading')
-      let data
-      if (editArticleSlug) {
-        const articleToUpdate: IUpdateArticleReq = {
-          slug: editArticleSlug,
-          article: { ...article, tagList },
-        }
-        data = await dispatch(updateArticle(articleToUpdate)).unwrap()
-      } else {
-        const newArticle: INewArticleReq = { article: { ...article, tagList } }
-        data = await dispatch(addNewArticle(newArticle)).unwrap()
+    // FIXME: add types
+    let data
+    if (editArticleSlug) {
+      const articleToUpdate: IUpdateArticleReq = {
+        slug: editArticleSlug,
+        article: { ...article, tagList },
       }
-      const { slug } = data.article
-      navigate(`/article/${slug}`, { replace: true })
-    } catch (error) {
-      setError(error as IResponseError)
-    } finally {
-      setStatus('idle')
+      data = await run(updateArticle(articleToUpdate))
+    } else {
+      const newArticle: INewArticleReq = { article: { ...article, tagList } }
+      data = await run(addNewArticle(newArticle))
     }
+    const { slug } = data.article
+    navigate(`/article/${slug}`, { replace: true })
   }
 
   return (
@@ -73,7 +63,7 @@ const Editor: React.FC = () => {
         <div className="row">
           <div className="col-md-10 offset-md-1 col-xs-12">
             <form onSubmit={e => onFormSubmitted(e)}>
-              <fieldset disabled={status === 'loading'}>
+              <fieldset disabled={isLoading}>
                 <fieldset className="form-group">
                   <input
                     type="text"
@@ -117,7 +107,7 @@ const Editor: React.FC = () => {
                 </fieldset>
                 <button className="btn btn-lg pull-xs-right btn-primary">
                   {editArticleSlug ? 'Update' : 'Publish'} Article{' '}
-                  {status === 'loading' && <Spinner />}
+                  {isLoading && <Spinner />}
                 </button>
               </fieldset>
             </form>

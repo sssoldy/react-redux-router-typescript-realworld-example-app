@@ -1,4 +1,4 @@
-import axios, { AxiosError, AxiosResponse } from 'axios'
+import { AxiosResponse } from 'axios'
 import { format, parseISO } from 'date-fns'
 import { IAxiosArticleConfigMeta, IAxiosArticlesConfig } from '../types/api'
 import { IResponseError } from '../types/error'
@@ -8,20 +8,6 @@ export const formatDate = (date: string) =>
 
 export const formatDateComment = (date: string) =>
   format(parseISO(date), 'MMM do') // Nov 24th
-
-export const getErrorConfig = (
-  error: any | AxiosError,
-): IResponseError | null => {
-  if (axios.isAxiosError(error) && error.response) {
-    return {
-      name: error.name,
-      status: error.response.status,
-      message: error.message,
-      data: error.response.data,
-    } as IResponseError
-  }
-  return null
-}
 
 export const getErrorData = (error: any): IResponseError => {
   return {

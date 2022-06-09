@@ -78,35 +78,35 @@ export const Articles = {
     await axios.request<IMultiArticlesRes>({
       method: 'get',
       url: 'articles/feed',
-      params: { limit: 3, offset: 0 },
+      params: { limit: 1, offset: 0 },
     } as IAxiosArticlesConfig),
 
   profile: async (username: string) =>
     await axios.request<IMultiArticlesRes>({
       method: 'get',
       url: 'articles',
-      params: { limit: 3, offset: 0, author: username },
+      params: { limit: 1, offset: 0, author: username },
     } as IAxiosArticlesConfig),
 
   favorited: async (username: string) =>
     await axios.request<IMultiArticlesRes>({
       method: 'get',
       url: 'articles',
-      params: { limit: 3, offset: 0, favorited: username },
+      params: { limit: 1, offset: 0, favorited: username },
     } as IAxiosArticlesConfig),
 
   tag: async (tag: string) =>
     await axios.request<IMultiArticlesRes>({
       method: 'get',
       url: 'articles',
-      params: { limit: 3, offset: 0, tag: tag },
+      params: { limit: 1, offset: 0, tag: tag },
     } as IAxiosArticlesConfig),
 
   all: async () =>
     await axios.request<IMultiArticlesRes>({
       method: 'get',
       url: 'articles',
-      params: { limit: 3, offset: 0 },
+      params: { limit: 1, offset: 0 },
     } as IAxiosArticlesConfig),
 
   single: async (slug: string) =>

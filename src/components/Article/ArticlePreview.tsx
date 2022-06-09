@@ -3,6 +3,7 @@ import * as React from 'react'
 import { Link } from 'react-router-dom'
 import { useAppSelector } from '../../app/hooks'
 import { selectArticleById } from '../../app/slices/articlesSlice'
+import { IProfile } from '../../types/profile'
 import TagList from '../Tag/TagList'
 import FavoriteButton from '../UI/FavoriteButton'
 import UserMeta from '../UI/UserMeta'
@@ -34,4 +35,4 @@ const ArticlePreview: React.FC<ArticlePreviewProps> = ({ id }) => {
   )
 }
 
-export default ArticlePreview
+export default React.memo(ArticlePreview)

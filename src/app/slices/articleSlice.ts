@@ -152,6 +152,7 @@ const articleSlice = createSlice({
 
 export const { authorUpdated } = articleSlice.actions
 
+export const selectArticleState = (state: RootState) => state.article
 export const selectArticle = (state: RootState) => state.article.article
 export const selectActicleStatus = (state: RootState) => state.article.status
 export const selectArticleError = (state: RootState) => state.article.error

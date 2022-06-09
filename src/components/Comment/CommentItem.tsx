@@ -1,17 +1,16 @@
 import * as React from 'react'
 import { EntityId } from '@reduxjs/toolkit'
 import { Link, useParams } from 'react-router-dom'
-import { useAppDispatch, useAppSelector } from '../../app/hooks'
+import { useAppSelector } from '../../app/hooks'
 import {
   deleteComment,
   selectCommentById,
 } from '../../app/slices/commentsSlice'
 import { selectUsername } from '../../app/slices/userSlice'
-import { ResponseStatus } from '../../types/api'
-import { IResponseError } from '../../types/error'
-import { formatDate } from '../../utils/misc'
+import { formatDateComment } from '../../utils/misc'
 import ErrorList from '../Error/ErrorList'
 import Spinner from '../UI/Spinner/Spinner'
+import { useAsyncThunk } from '../../hooks/useAsyncThunk'
 
 interface CommentItemProps {
   commentId: EntityId
@@ -22,28 +21,16 @@ const CommentItem: React.FC<CommentItemProps> = ({ commentId }) => {
   const username = useAppSelector(selectUsername)
   const isUserComment = comment?.author.username === username
 
-  const [status, setStatus] = React.useState<ResponseStatus>('idle')
-  const [error, setError] = React.useState<IResponseError | null>(null)
-  const canDelete = status !== 'loading'
+  const { isIdle, isLoading, error, run } = useAsyncThunk()
+  const canDelete = isIdle
 
   const { slug } = useParams()
-
-  const dispatch = useAppDispatch()
 
   if (!comment) return null
 
   const onDeleteClicked = async () => {
     if (!slug || !canDelete) return
-    try {
-      setStatus('loading')
-      setError(null)
-      await dispatch(deleteComment({ slug, id: comment.id })).unwrap()
-      setStatus('successed')
-    } catch (error) {
-      setError(error as IResponseError)
-    } finally {
-      setStatus('idle')
-    }
+    await run(deleteComment({ slug, id: comment.id }))
   }
 
   return (
@@ -67,10 +54,12 @@ const CommentItem: React.FC<CommentItemProps> = ({ commentId }) => {
           >
             {comment.author.username}
           </Link>
-          <span className="date-posted">{formatDate(comment.createdAt)}</span>
+          <span className="date-posted">
+            {formatDateComment(comment.createdAt)}
+          </span>
           {isUserComment && (
             <span className="mod-options" onClick={onDeleteClicked}>
-              {status === 'loading' && <Spinner />}
+              {isLoading && <Spinner />}
               <i className="ion-trash-a"></i>
             </span>
           )}

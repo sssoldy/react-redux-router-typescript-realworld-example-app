@@ -1,10 +1,8 @@
 import * as React from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useAppDispatch } from '../../app/hooks'
 import { followProfile, unfollowProfile } from '../../app/slices/profileSlice'
+import { useAsyncThunk } from '../../hooks/useAsyncThunk'
 import { useAuthRequire } from '../../hooks/useAuthRequire'
-import { ResponseStatus } from '../../types/api'
-import { IResponseError } from '../../types/error'
 import { IProfile } from '../../types/profile'
 import ErrorList from '../Error/ErrorList'
 import Button from './Button'
@@ -15,18 +13,15 @@ interface FollowButtonProps {
 }
 
 const FollowButton: React.FC<FollowButtonProps> = ({ profile }) => {
-  const [status, setStatus] = React.useState<ResponseStatus>('idle')
-  const [error, setError] = React.useState<IResponseError | null>(null)
-
+  const { isIdle, isLoading, error, run } = useAsyncThunk()
   const { username, following } = profile
   const isFollowing = following || false
   const icon = isFollowing ? 'ion-minus-round' : 'ion-plus-round'
-  const canFollow = status === 'idle'
+  const canFollow = isIdle
 
   const { auth, from } = useAuthRequire()
 
   const navigate = useNavigate()
-  const dispatch = useAppDispatch()
 
   const onFollowClicked = async () => {
     if (!auth) {
@@ -34,18 +29,10 @@ const FollowButton: React.FC<FollowButtonProps> = ({ profile }) => {
       return
     }
     if (!canFollow) return
-    try {
-      setError(null)
-      setStatus('loading')
-      isFollowing
-        ? await dispatch(unfollowProfile(username)).unwrap()
-        : await dispatch(followProfile(username)).unwrap()
-      setStatus('successed')
-    } catch (error) {
-      setError(error as IResponseError)
-    } finally {
-      setStatus('idle')
-    }
+
+    isFollowing
+      ? await run(unfollowProfile(username))
+      : await run(followProfile(username))
   }
 
   return (
@@ -57,7 +44,7 @@ const FollowButton: React.FC<FollowButtonProps> = ({ profile }) => {
       onClick={onFollowClicked}
     >
       {isFollowing ? 'Unfollow' : 'Follow'} {username}{' '}
-      {status === 'loading' && <Spinner />}
+      {isLoading && <Spinner />}
       <ErrorList error={error} />
     </Button>
   )

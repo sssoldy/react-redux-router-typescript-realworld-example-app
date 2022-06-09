@@ -1,12 +1,10 @@
 import * as React from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { useAppDispatch } from '../app/hooks'
 import { registerUser } from '../app/slices/userSlice'
 import ErrorList from '../components/Error/ErrorList'
 import Spinner from '../components/UI/Spinner/Spinner'
+import { useAsyncThunk } from '../hooks/useAsyncThunk'
 import { useLocationState } from '../hooks/useLocationState'
-import { ResponseStatus } from '../types/api'
-import { IResponseError } from '../types/error'
 import { IFromState } from '../types/locationState'
 import { IRegisterUser } from '../types/user'
 
@@ -18,16 +16,13 @@ const Register: React.FC = () => {
   })
   const { username, email, password } = user
 
-  const [status, setStatus] = React.useState<ResponseStatus>('idle')
-  const [error, setError] = React.useState<IResponseError | null>(null)
-  const canRegister =
-    [username, email, password].every(Boolean) && status === 'idle'
+  const { isIdle, isLoading, error, run } = useAsyncThunk()
+  const canRegister = [username, email, password].every(Boolean) && isIdle
 
   const locationState = useLocationState<IFromState>()
   const from = locationState?.from?.pathname || '/'
 
   const navigate = useNavigate()
-  const dispatch = useAppDispatch()
 
   const onInputChanged = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
@@ -40,16 +35,9 @@ const Register: React.FC = () => {
   const onFormSubmitted = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     if (!canRegister) return
-    try {
-      setError(null)
-      setStatus('loading')
-      await dispatch(registerUser({ user: user })).unwrap()
-      navigate(from, { replace: true })
-    } catch (error) {
-      setError(error as IResponseError)
-    } finally {
-      setStatus('idle')
-    }
+
+    await run(registerUser({ user: user }))
+    navigate(from, { replace: true })
   }
 
   return (
@@ -63,7 +51,7 @@ const Register: React.FC = () => {
             </p>
 
             <form onSubmit={e => onFormSubmitted(e)}>
-              <fieldset disabled={status === 'loading'}>
+              <fieldset disabled={isLoading}>
                 <fieldset className="form-group">
                   <input
                     className="form-control form-control-lg"
@@ -98,7 +86,7 @@ const Register: React.FC = () => {
                   disabled={!canRegister}
                   className="btn btn-lg btn-primary pull-xs-right"
                 >
-                  Sign up {status === 'loading' && <Spinner />}
+                  Sign up {isLoading && <Spinner />}
                 </button>
               </fieldset>
             </form>

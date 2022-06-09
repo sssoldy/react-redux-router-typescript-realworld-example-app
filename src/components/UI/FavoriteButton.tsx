@@ -1,15 +1,13 @@
 import * as React from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useAppDispatch } from '../../app/hooks'
 import {
   favoriteArticle,
   unfavoriteArticle,
 } from '../../app/slices/articleSlice'
+import { useAsyncThunk } from '../../hooks/useAsyncThunk'
 import { useAuthRequire } from '../../hooks/useAuthRequire'
-import { ResponseStatus } from '../../types/api'
 import { IArticle } from '../../types/articles'
-import { IResponseError } from '../../types/error'
-import ErrorList from '../Error/ErrorList'
+import ErrorAlert from '../Error/ErrorAlert'
 import Button from './Button'
 import Spinner from './Spinner/Spinner'
 
@@ -24,16 +22,13 @@ const FavoriteButton: React.FC<FavoriteButtonProps> = ({
   className = '',
   children,
 }) => {
-  const [status, setStatus] = React.useState<ResponseStatus>('idle')
-  const [error, setError] = React.useState<IResponseError | null>(null)
-
+  const { isIdle, isLoading, error, reset, run } = useAsyncThunk()
   const isFavorited = article.favorited || false
-  const canFavorite = status === 'idle'
+  const canFavorite = isIdle
 
   const { auth, from } = useAuthRequire()
 
   const navigate = useNavigate()
-  const dispatch = useAppDispatch()
 
   const onFavoriteClicked = async () => {
     if (!auth) {
@@ -42,32 +37,25 @@ const FavoriteButton: React.FC<FavoriteButtonProps> = ({
     }
     if (!canFavorite) return
 
-    try {
-      setError(null)
-      setStatus('loading')
-      isFavorited
-        ? await dispatch(unfavoriteArticle(article.slug)).unwrap()
-        : await dispatch(favoriteArticle(article.slug)).unwrap()
-      setStatus('successed')
-    } catch (error) {
-      setError(error as IResponseError)
-    } finally {
-      setStatus('idle')
-    }
+    isFavorited
+      ? await run(unfavoriteArticle(article.slug))
+      : await run(favoriteArticle(article.slug))
   }
 
   return (
-    <Button
-      isActive={isFavorited}
-      variant="primary"
-      icon="ion-heart"
-      className={className}
-      disabled={!canFavorite}
-      onClick={onFavoriteClicked}
-    >
-      {children} {status === 'loading' && <Spinner />}
-      <ErrorList error={error} />
-    </Button>
+    <React.Fragment>
+      <Button
+        isActive={isFavorited}
+        variant="primary"
+        icon="ion-heart"
+        className={className}
+        disabled={!canFavorite}
+        onClick={onFavoriteClicked}
+      >
+        {children} {isLoading && <Spinner />}
+      </Button>
+      {error && <ErrorAlert error={error} hideError={reset} />}
+    </React.Fragment>
   )
 }
 

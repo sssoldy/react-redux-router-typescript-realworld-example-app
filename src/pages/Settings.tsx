@@ -4,8 +4,7 @@ import { useAppDispatch, useAppSelector } from '../app/hooks'
 import { loggedOut, selectUser, updateUser } from '../app/slices/userSlice'
 import ErrorList from '../components/Error/ErrorList'
 import Spinner from '../components/UI/Spinner/Spinner'
-import { ResponseStatus } from '../types/api'
-import { IResponseError } from '../types/error'
+import { useAsyncThunk } from '../hooks/useAsyncThunk'
 import { IUpdateUser, IUser } from '../types/user'
 
 // TODO: something wrong with API. Have to research dependencies
@@ -14,10 +13,9 @@ const Settings: React.FC = () => {
   const [userData, setUserData] = React.useState<IUpdateUser>(user)
   const { email, username, bio, image, password } = userData
 
-  const [status, setStatus] = React.useState<ResponseStatus>('idle')
-  const [error, setError] = React.useState<IResponseError | null>(null)
+  const { isIdle, isLoading, error, run } = useAsyncThunk()
   const canUpdate =
-    [email, username, bio, image, password].some(Boolean) && status === 'idle'
+    [email, username, bio, image, password].some(Boolean) && isIdle
 
   const navigate = useNavigate()
   const dispatch = useAppDispatch()
@@ -35,16 +33,9 @@ const Settings: React.FC = () => {
   const onFormSubmitted = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     if (!canUpdate) return
-    try {
-      setError(null)
-      setStatus('loading')
-      await dispatch(updateUser(userData)).unwrap()
-      navigate(`/profile/${user.username}`, { replace: true })
-    } catch (error) {
-      setError(error as IResponseError)
-    } finally {
-      setStatus('idle')
-    }
+
+    await run(updateUser(userData))
+    navigate(`/profile/${user.username}`, { replace: true })
   }
 
   const onLogoutClicked = () => {
@@ -62,7 +53,7 @@ const Settings: React.FC = () => {
             <ErrorList error={error} />
 
             <form onSubmit={e => onFormSubmitted(e)}>
-              <fieldset disabled={status === 'loading'}>
+              <fieldset disabled={isLoading}>
                 <fieldset className="form-group">
                   <input
                     className="form-control form-control-lg"
@@ -117,7 +108,7 @@ const Settings: React.FC = () => {
                   disabled={!canUpdate}
                   className="btn btn-lg btn-primary pull-xs-right"
                 >
-                  Update Settings {status === 'loading' && <Spinner />}
+                  Update Settings {isLoading && <Spinner />}
                 </button>
               </fieldset>
             </form>

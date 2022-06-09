@@ -1,24 +1,14 @@
 import * as React from 'react'
 import { useParams } from 'react-router-dom'
 import { useAppDispatch, useAppSelector } from '../../app/hooks'
-import {
-  selectArticle,
-  selectActicleStatus,
-  selectArticleError,
-  getArticle,
-} from '../../app/slices/articleSlice'
+import { getArticle, selectArticleState } from '../../app/slices/articleSlice'
 import ErrorList from '../Error/ErrorList'
 import TagList from '../Tag/TagList'
 import FullPageSpinner from '../UI/Spinner/FullPageSpinner'
 import ArticleMeta from './ArticleMeta'
 
-interface ArticleContentProps {}
-
-const ArticleContent: React.FC<ArticleContentProps> = () => {
-  const article = useAppSelector(selectArticle)
-  const status = useAppSelector(selectActicleStatus)
-  const error = useAppSelector(selectArticleError)
-
+const ArticleContent: React.FC = () => {
+  const { article, status, error } = useAppSelector(selectArticleState)
   const { slug } = useParams()
   const dispatch = useAppDispatch()
 

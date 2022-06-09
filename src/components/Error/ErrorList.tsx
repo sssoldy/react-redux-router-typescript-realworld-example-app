@@ -39,7 +39,7 @@ const ErrorList: React.FC<ErrorListProps> = ({ error }) => {
 
   return (
     <div style={{ color: '#ef5350' }}>
-      <span style={{ color: '#ef5350' }}>There was an error: </span>
+      <p style={{ color: '#ef5350' }}>There was an error: </p>
       {content}
     </div>
   )
