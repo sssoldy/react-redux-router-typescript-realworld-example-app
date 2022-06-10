@@ -16,4 +16,4 @@ const CommentItem: React.FC<CommentItemProps> = ({ commentId }) => {
   return <CommentItemContent comment={comment} />
 }
 
-export default CommentItem
+export default React.memo(CommentItem)

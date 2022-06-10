@@ -7,7 +7,7 @@ import Spinner from '../components/UI/Spinner/Spinner'
 import { useAsyncThunk } from '../hooks/useAsyncThunk'
 import { IUpdateUser, IUser } from '../types/user'
 
-// TODO: something wrong with API. Have to research dependencies
+// https://github.com/gothinkster/realworld/issues/949
 const Settings: React.FC = () => {
   const user = useAppSelector(selectUser) as IUser
   const [userData, setUserData] = React.useState<IUpdateUser>(user)
@@ -49,9 +49,6 @@ const Settings: React.FC = () => {
         <div className="row">
           <div className="col-md-6 offset-md-3 col-xs-12">
             <h1 className="text-xs-center">Your Settings</h1>
-
-            <ErrorList error={error} />
-
             <form onSubmit={e => onFormSubmitted(e)}>
               <fieldset disabled={isLoading}>
                 <fieldset className="form-group">
@@ -112,6 +109,7 @@ const Settings: React.FC = () => {
                 </button>
               </fieldset>
             </form>
+            <ErrorList error={error} />
             <hr />
             <button
               onClick={onLogoutClicked}

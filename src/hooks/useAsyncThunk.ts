@@ -18,12 +18,12 @@ type Action<T> =
   | { type: 'fulfilled'; data: T }
   | { type: 'reset' }
 
-function reducer<T>(state: State<T>, action: Action<T>): State<T> {
+const reducer = <T>(state: State<T>, action: Action<T>): State<T> => {
   switch (action.type) {
     case 'idle':
       return { ...state, status: 'idle' }
     case 'pending':
-      return { ...state, status: 'loading' }
+      return { ...state, status: 'loading', error: null }
     case 'rejected':
       return { ...state, status: 'failed', error: action.error }
     case 'fulfilled':

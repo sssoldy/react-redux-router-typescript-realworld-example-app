@@ -45,7 +45,6 @@ const Editor: React.FC = () => {
 
     const tagList = article.tagList.split(', ')
 
-    // FIXME: add types
     let data
     if (editArticleSlug) {
       const articleToUpdate: IUpdateArticleReq = {

@@ -15,16 +15,13 @@ import { IResponseError } from '../../types/error'
 import { IProfile } from '../../types/profile'
 import { getErrorData } from '../../utils/misc'
 import { RootState } from '../store'
-import { articleFavoriteToggled, selectArticleById } from './articlesSlice'
+import { articleFavoriteToggled } from './articlesSlice'
 
 export const getArticle = createAsyncThunk<
   ISingleArticleRes,
   string,
   { state: RootState; rejectValue: IResponseError }
 >('article/getArticle', async (slug: string, { getState, rejectWithValue }) => {
-  const article = selectArticleById(getState(), slug)
-  if (article) return { article }
-
   try {
     const { data } = await Articles.single(slug)
     return data

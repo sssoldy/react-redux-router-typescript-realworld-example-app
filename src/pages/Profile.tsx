@@ -2,13 +2,15 @@ import * as React from 'react'
 import ArticleList from '../components/ArticleList/ArticleList'
 import ProfileInfo from '../components/Profile/ProfileInfo'
 import { useParams } from 'react-router-dom'
-import { useAppDispatch } from '../app/hooks'
+import { useAppDispatch, useAppSelector } from '../app/hooks'
 import { getProfileArticles } from '../app/slices/articlesSlice'
-import { getProfile } from '../app/slices/profileSlice'
+import { getProfile, selectProfileStatus } from '../app/slices/profileSlice'
 import ProfileFilterTabs from '../components/FilterTabs/ProfileFilterTabs'
+import NotFound from './NotFound'
 
 const Profile: React.FC = () => {
   const { username } = useParams()
+  const status = useAppSelector(selectProfileStatus)
 
   const dispatch = useAppDispatch()
 
@@ -22,6 +24,8 @@ const Profile: React.FC = () => {
       }
     }
   }, [dispatch, username])
+
+  if (status === 'failed') return <NotFound />
 
   return (
     <div className="profile-page">

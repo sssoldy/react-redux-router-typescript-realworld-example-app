@@ -1,5 +1,5 @@
-import { IUser } from '../types/user'
 import avatarPlaceholder from '../assets/avatar-placeholder.svg'
+import { IUser } from '../types/user'
 import { IProfile } from '../types/profile'
 import { IArticle } from '../types/articles'
 

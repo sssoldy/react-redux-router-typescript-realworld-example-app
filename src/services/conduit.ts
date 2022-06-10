@@ -50,6 +50,7 @@ export const Auth = {
       },
     }),
 
+  // https://github.com/gothinkster/realworld/issues/949
   update: async (user: IUpdateUserReq) =>
     await axios.put<IUserRes>('user', user),
 }

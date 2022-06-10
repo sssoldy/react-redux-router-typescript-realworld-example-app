@@ -209,6 +209,10 @@ const articlesSlice = createSlice({
         changes: { favorited, favoritesCount },
       }
       articlesAdapter.updateOne(state, update)
+
+      if (state.filter?.type === 'favorited') {
+        articlesAdapter.removeOne(state, slug)
+      }
     },
   },
   extraReducers: builder => {
@@ -233,7 +237,6 @@ const articlesSlice = createSlice({
           getProfileArticles,
           getFavoritedArticles,
           getTaggedArticles,
-          getArticlesByQuery,
         ),
         (state, action) => {
           state.status = 'failed'

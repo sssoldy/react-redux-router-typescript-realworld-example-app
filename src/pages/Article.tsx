@@ -4,33 +4,35 @@ import { useAppSelector, useAppDispatch } from '../app/hooks'
 import {
   selectArticle,
   selectActicleStatus,
-  selectArticleError,
   getArticle,
 } from '../app/slices/articleSlice'
 import ArticleContent from '../components/ArticleContent/ArticleContent'
 import Comments from '../components/Comment/Comments'
-import ErrorList from '../components/UI/Error/ErrorList'
 import { articleFallback } from '../utils/fallbackData'
 import { fallbackHandler } from '../utils/misc'
+import NotFound from './NotFound'
 
 const Article: React.FC = () => {
   let article = useAppSelector(selectArticle)
   const status = useAppSelector(selectActicleStatus)
-  const error = useAppSelector(selectArticleError)
   const { slug } = useParams()
   const dispatch = useAppDispatch()
   let isFallback = false
 
   React.useEffect(() => {
-    if (!slug) return
-    dispatch(getArticle(slug))
+    if (slug) {
+      const article = dispatch(getArticle(slug))
+      return () => {
+        article.abort()
+      }
+    }
   }, [dispatch, slug])
 
   if (status === 'loading') {
     article = articleFallback
     isFallback = true
   }
-  if (status === 'failed') return <ErrorList error={error} />
+  if (status === 'failed') return <NotFound />
   if (!article) return null
 
   const { rootClassName, onRootClicked } = fallbackHandler(isFallback)

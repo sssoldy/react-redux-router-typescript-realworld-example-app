@@ -1,31 +1,29 @@
-import { AxiosResponse } from 'axios'
 import * as React from 'react'
+import { AxiosResponse } from 'axios'
 import { ResponseStatus } from '../types/api'
 import { IResponseError } from '../types/error'
 import { getErrorData } from '../utils/misc'
 
-type InitialState<D> = {
-  data?: D | null
-  status?: ResponseStatus
-  error?: IResponseError | null
-}
-
-type DefaultState<D> = {
-  data: D | null
+type State<T> = {
+  data: T | null
   status: ResponseStatus
   error: IResponseError | null
 }
 
-function useAsync<T>(initialState?: InitialState<T>) {
-  const [state, dispatch] = React.useReducer(
-    (s: typeof initialState, a: DefaultState<T>) => ({ ...s, ...a }),
-    {
-      data: null,
-      status: 'idle',
-      error: null,
-      ...initialState,
-    } as DefaultState<T>,
-  )
+type Action<T> = {
+  data: T | null
+  status: ResponseStatus
+  error: IResponseError | null
+}
+
+const useAsync = <T>() => {
+  const [state, dispatch] = React.useReducer<
+    React.Reducer<State<T>, Action<T>>
+  >((state, action) => ({ ...state, ...action }), {
+    data: null,
+    status: 'idle',
+    error: null,
+  })
 
   const { data, error, status } = state
 

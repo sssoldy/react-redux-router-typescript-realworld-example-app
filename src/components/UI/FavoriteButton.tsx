@@ -7,9 +7,9 @@ import {
 import { useAsyncThunk } from '../../hooks/useAsyncThunk'
 import { useAuthRequire } from '../../hooks/useAuthRequire'
 import { IArticle } from '../../types/articles'
-import ErrorAlert from './Error/ErrorAlert'
 import Button from './Button'
 import Spinner from './Spinner/Spinner'
+import ErrorList from './Error/ErrorList'
 
 interface FavoriteButtonProps {
   article: IArticle
@@ -22,7 +22,7 @@ const FavoriteButton: React.FC<FavoriteButtonProps> = ({
   className = '',
   children,
 }) => {
-  const { isIdle, isLoading, error, reset, run } = useAsyncThunk()
+  const { isIdle, isLoading, error, run } = useAsyncThunk()
   const isFavorited = article.favorited || false
   const canFavorite = isIdle
 
@@ -43,19 +43,17 @@ const FavoriteButton: React.FC<FavoriteButtonProps> = ({
   }
 
   return (
-    <>
-      <Button
-        isActive={isFavorited}
-        variant="primary"
-        icon="ion-heart"
-        className={className}
-        disabled={!canFavorite}
-        onClick={onFavoriteClicked}
-      >
-        {children} {isLoading && <Spinner />}
-      </Button>
-      {error && <ErrorAlert error={error} hideError={reset} />}
-    </>
+    <Button
+      isActive={isFavorited}
+      variant="primary"
+      icon="ion-heart"
+      className={className}
+      disabled={!canFavorite}
+      onClick={onFavoriteClicked}
+    >
+      {children} {isLoading && <Spinner />}
+      <ErrorList error={error} />
+    </Button>
   )
 }
 
