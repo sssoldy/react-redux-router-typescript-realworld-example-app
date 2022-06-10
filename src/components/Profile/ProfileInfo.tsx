@@ -1,22 +1,39 @@
 import * as React from 'react'
 import { useAppSelector } from '../../app/hooks'
 import { selectUser } from '../../app/slices/userSlice'
-import ErrorList from '../Error/ErrorList'
+import ErrorList from '../UI/Error/ErrorList'
 import EditProfileButton from '../UI/EditProfileButton'
 import FollowButton from '../UI/FollowButton'
-import Spinner from '../UI/Spinner/Spinner'
+import {
+  selectProfile,
+  selectProfileError,
+  selectProfileStatus,
+} from '../../app/slices/profileSlice'
+import { profileFallback } from '../../utils/fallbackData'
+import { fallbackHandler } from '../../utils/misc'
 
 const ProfileInfo: React.FC = () => {
-  const { profile, status, error } = useAppSelector(state => state.profile)
+  let profile = useAppSelector(selectProfile)
+  const status = useAppSelector(selectProfileStatus)
+  const error = useAppSelector(selectProfileError)
   const user = useAppSelector(selectUser)
   const isUser = profile?.username === user?.username
+  let isFallback = false
 
-  if (status === 'loading') return <Spinner />
+  if (status === 'loading') {
+    profile = profileFallback
+    isFallback = true
+  }
   if (status === 'failed') return <ErrorList error={error} />
   if (!profile) return <div>Profile not found</div>
 
+  const { rootClassName, onRootClicked } = fallbackHandler(isFallback)
+
   return (
-    <div className="user-info">
+    <div
+      className={`user-info ${rootClassName}`}
+      onClickCapture={onRootClicked}
+    >
       <div className="container">
         <div className="row">
           <div className="col-xs-12 col-md-10 offset-md-1">

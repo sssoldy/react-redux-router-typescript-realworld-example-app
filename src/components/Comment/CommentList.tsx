@@ -7,8 +7,8 @@ import {
   selectCommentsIds,
   selectCommentsStatus,
 } from '../../app/slices/commentsSlice'
-import ErrorList from '../Error/ErrorList'
-import ListSpinner from '../UI/Spinner/ListSpinner'
+import ErrorList from '../UI/Error/ErrorList'
+import CommentFallbackList from './CommentFallbackList'
 import CommentItem from './CommentItem'
 
 const CommentList: React.FC = () => {
@@ -26,16 +26,16 @@ const CommentList: React.FC = () => {
     }
   }, [dispatch, slug])
 
-  if (status === 'loading') return <ListSpinner />
+  if (status === 'loading') return <CommentFallbackList />
   if (status === 'failed') return <ErrorList error={error} />
   if (!commentIds.length) return <div>No comments are here... yet.</div>
 
   return (
-    <React.Fragment>
+    <>
       {commentIds.map(commentId => (
         <CommentItem key={commentId} commentId={commentId} />
       ))}
-    </React.Fragment>
+    </>
   )
 }
 

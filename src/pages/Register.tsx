@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { registerUser } from '../app/slices/userSlice'
-import ErrorList from '../components/Error/ErrorList'
+import ErrorList from '../components/UI/Error/ErrorList'
 import Spinner from '../components/UI/Spinner/Spinner'
 import { useAsyncThunk } from '../hooks/useAsyncThunk'
 import { useLocationState } from '../hooks/useLocationState'

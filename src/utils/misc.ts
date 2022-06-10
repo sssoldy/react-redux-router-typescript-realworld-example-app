@@ -29,3 +29,14 @@ export const getConfigData = (
     },
   }
 }
+
+export const fallbackHandler = (isFallback: boolean) => {
+  const onRootClicked = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+    if (!isFallback) return
+    e.stopPropagation()
+    e.preventDefault()
+  }
+  const rootClassName = isFallback ? 'events-disabled' : ''
+
+  return { onRootClicked, rootClassName }
+}

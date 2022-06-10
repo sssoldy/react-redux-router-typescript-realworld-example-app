@@ -2,20 +2,18 @@ import * as React from 'react'
 import { useAsync } from '../../hooks/useAsync'
 import { Tags } from '../../services/conduit'
 import { ITagsRes } from '../../types/tags'
-import ErrorList from '../Error/ErrorList'
-import Spinner from '../UI/Spinner/Spinner'
+import ErrorList from '../UI/Error/ErrorList'
+import TagFallbackList from './TagFallbackList'
 import TagList from './TagList'
 
-interface PopularTagsProps {}
-
-const PopularTags: React.FC<PopularTagsProps> = () => {
+const PopularTags: React.FC = () => {
   const { data, error, run, isLoading, isError } = useAsync<ITagsRes>()
 
   React.useEffect(() => {
     run(Tags.all())
   }, [run])
 
-  if (isLoading) return <Spinner />
+  if (isLoading) return <TagFallbackList />
   if (isError) return <ErrorList error={error} />
   if (!data || !data.tags.length) return <div>No tags are here... yet.</div>
 

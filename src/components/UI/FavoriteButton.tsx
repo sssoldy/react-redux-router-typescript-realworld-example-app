@@ -7,7 +7,7 @@ import {
 import { useAsyncThunk } from '../../hooks/useAsyncThunk'
 import { useAuthRequire } from '../../hooks/useAuthRequire'
 import { IArticle } from '../../types/articles'
-import ErrorAlert from '../Error/ErrorAlert'
+import ErrorAlert from './Error/ErrorAlert'
 import Button from './Button'
 import Spinner from './Spinner/Spinner'
 
@@ -43,7 +43,7 @@ const FavoriteButton: React.FC<FavoriteButtonProps> = ({
   }
 
   return (
-    <React.Fragment>
+    <>
       <Button
         isActive={isFavorited}
         variant="primary"
@@ -55,7 +55,7 @@ const FavoriteButton: React.FC<FavoriteButtonProps> = ({
         {children} {isLoading && <Spinner />}
       </Button>
       {error && <ErrorAlert error={error} hideError={reset} />}
-    </React.Fragment>
+    </>
   )
 }
 

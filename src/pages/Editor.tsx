@@ -1,11 +1,15 @@
 import * as React from 'react'
 import { useNavigate } from 'react-router-dom'
 import { addNewArticle, updateArticle } from '../app/slices/articleSlice'
-import ErrorList from '../components/Error/ErrorList'
+import ErrorList from '../components/UI/Error/ErrorList'
 import Spinner from '../components/UI/Spinner/Spinner'
 import { useAsyncThunk } from '../hooks/useAsyncThunk'
 import { useLocationState } from '../hooks/useLocationState'
-import { INewArticleReq, IUpdateArticleReq } from '../types/articles'
+import {
+  INewArticleReq,
+  ISingleArticleRes,
+  IUpdateArticleReq,
+} from '../types/articles'
 import { IEditArticleState } from '../types/locationState'
 
 const Editor: React.FC = () => {
@@ -22,7 +26,7 @@ const Editor: React.FC = () => {
   }
 
   const [article, setArticle] = React.useState(initialState)
-  const { isLoading, error, run } = useAsyncThunk()
+  const { isLoading, error, run } = useAsyncThunk<ISingleArticleRes>()
 
   const navigate = useNavigate()
 

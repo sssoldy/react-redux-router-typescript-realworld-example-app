@@ -4,7 +4,7 @@ import { followProfile, unfollowProfile } from '../../app/slices/profileSlice'
 import { useAsyncThunk } from '../../hooks/useAsyncThunk'
 import { useAuthRequire } from '../../hooks/useAuthRequire'
 import { IProfile } from '../../types/profile'
-import ErrorList from '../Error/ErrorList'
+import ErrorList from './Error/ErrorList'
 import Button from './Button'
 import Spinner from './Spinner/Spinner'
 

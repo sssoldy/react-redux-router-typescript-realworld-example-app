@@ -1,6 +1,6 @@
 import * as React from 'react'
-import ArticleList from '../components/Article/ArticleList'
-import ProfileInfo from '../components/ProfileInfo/ProfileInfo'
+import ArticleList from '../components/ArticleList/ArticleList'
+import ProfileInfo from '../components/Profile/ProfileInfo'
 import { useParams } from 'react-router-dom'
 import { useAppDispatch } from '../app/hooks'
 import { getProfileArticles } from '../app/slices/articlesSlice'

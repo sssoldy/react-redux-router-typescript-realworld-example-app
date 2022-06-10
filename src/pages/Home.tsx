@@ -1,5 +1,5 @@
 import * as React from 'react'
-import ArticleList from '../components/Article/ArticleList'
+import ArticleList from '../components/ArticleList/ArticleList'
 import PopularTags from '../components/Tag/PopularTags'
 import { useAppDispatch, useAppSelector } from '../app/hooks'
 import { selectUserToken } from '../app/slices/userSlice'

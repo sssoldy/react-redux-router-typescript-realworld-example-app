@@ -5,3 +5,7 @@ button {
 .tag-pill {
   border: 0;
 }
+
+.events-disabled {
+  pointer-events: none;
+}

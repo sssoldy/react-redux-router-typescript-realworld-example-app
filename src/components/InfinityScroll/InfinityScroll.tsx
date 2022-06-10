@@ -1,28 +1,28 @@
 import * as React from 'react'
-import { useAppDispatch, useAppSelector } from '../../app/hooks'
+import { useAppSelector } from '../../app/hooks'
 import {
   selectArticlesConfig,
   getArticlesByQuery,
+  selectArticlesLimit,
+  selectArticlesCount,
 } from '../../app/slices/articlesSlice'
-import { ResponseStatus } from '../../types/api'
-import { IResponseError } from '../../types/error'
+import { useAsyncThunk } from '../../hooks/useAsyncThunk'
+import { IMultiArticlesRes } from '../../types/articles'
 import ListSpinner from '../UI/Spinner/ListSpinner'
 
-interface InfinityScrollProps {}
-
-const InfinityScroll: React.FC<InfinityScrollProps> = () => {
+const InfinityScroll: React.FC = () => {
   const config = useAppSelector(selectArticlesConfig)
-  const [status, setStatus] = React.useState<ResponseStatus>('idle')
-  const [error, setError] = React.useState<IResponseError | null>(null)
-  const isIdle = status === 'idle'
+  const { isIdle, isLoading, run } = useAsyncThunk<IMultiArticlesRes>()
+
+  const articlesCount = useAppSelector(selectArticlesCount)
+  const limit = useAppSelector(selectArticlesLimit)
+  const canLoad = Boolean(articlesCount && articlesCount === limit)
 
   const scrollRef = React.useRef<HTMLDivElement | null>(null)
   const observer = React.useRef<IntersectionObserver | null>(null)
 
-  const dispatch = useAppDispatch()
-
   React.useEffect(() => {
-    if (!isIdle || !config) return
+    if (isLoading || !config) return
     if (observer.current) observer.current.disconnect()
 
     const request = async () => {
@@ -31,40 +31,26 @@ const InfinityScroll: React.FC<InfinityScrollProps> = () => {
         ...config,
         params: { ...config.params, offset: newOffset },
       }
-      try {
-        setError(null)
-        setStatus('loading')
-        const articles = await dispatch(getArticlesByQuery(newConfig)).unwrap()
-        if (!articles.length) {
-          setError({
-            name: 'IntersectionObserver',
-            status: -1,
-            message: 'Articles list is empty',
-            data: {
-              status: '-1',
-              message: 'Articles list is empty',
-            },
-          })
-        }
-      } catch (error) {
-        setError(error as IResponseError)
-      } finally {
-        setStatus('idle')
-      }
+      await run(getArticlesByQuery(newConfig))
     }
 
+    console.log('canLoad ' + canLoad)
     observer.current = new IntersectionObserver((entries, observer) => {
-      if (entries[0].isIntersecting && !error) {
-        console.log(error)
+      if (entries[0].isIntersecting && canLoad) {
         request()
       }
     })
 
     if (!scrollRef.current) return
     observer.current.observe(scrollRef.current)
-  }, [config, dispatch, error, isIdle])
+  }, [canLoad, config, isLoading, run])
 
-  return <div ref={scrollRef}>{!isIdle && <ListSpinner />}</div>
+  return (
+    <>
+      <div ref={scrollRef} />
+      {!isIdle && <ListSpinner />}
+    </>
+  )
 }
 
 export default InfinityScroll

@@ -6,7 +6,7 @@ import DeleteArticleButton from '../UI/DeleteArticleButton'
 import EditArticleButton from '../UI/EditArticleButtom'
 import FavoriteButton from '../UI/FavoriteButton'
 import FollowButton from '../UI/FollowButton'
-import UserMeta from '../UI/UserMeta'
+import ProfileMeta from '../Profile/ProfileMeta'
 
 interface ArticleMetaProps {
   article: IArticle
@@ -18,23 +18,23 @@ const ArticleMeta: React.FC<ArticleMetaProps> = ({ article }) => {
 
   return (
     <div className="article-meta">
-      <UserMeta article={article} />
+      <ProfileMeta article={article} />
       {!isUserPost && (
-        <React.Fragment>
+        <>
           <FollowButton profile={article.author} />
           &nbsp;&nbsp;
           <FavoriteButton article={article}>
             {article.favorited ? 'Unfavorite' : 'Favorite'} Post (
             {article.favoritesCount})
           </FavoriteButton>
-        </React.Fragment>
+        </>
       )}
       {isUserPost && (
-        <React.Fragment>
+        <>
           <EditArticleButton article={article} />
           &nbsp;&nbsp;
           <DeleteArticleButton />
-        </React.Fragment>
+        </>
       )}
     </div>
   )

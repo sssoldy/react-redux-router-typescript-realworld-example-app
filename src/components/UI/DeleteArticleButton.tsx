@@ -4,7 +4,7 @@ import { useAppSelector } from '../../app/hooks'
 import { deleteArticle } from '../../app/slices/articleSlice'
 import { selectUsername } from '../../app/slices/userSlice'
 import { useAsyncThunk } from '../../hooks/useAsyncThunk'
-import ErrorList from '../Error/ErrorList'
+import ErrorList from './Error/ErrorList'
 import Button from './Button'
 import Spinner from './Spinner/Spinner'
 

@@ -3,15 +3,15 @@ import { Link } from 'react-router-dom'
 import { IArticle } from '../../types/articles'
 import { formatDate } from '../../utils/misc'
 
-interface UserMetaProps {
+interface ProfileMetaProps {
   article: IArticle
 }
 
-const UserMeta: React.FC<UserMetaProps> = ({ article }) => {
+const ProfileMeta: React.FC<ProfileMetaProps> = ({ article }) => {
   const { author } = article
 
   return (
-    <React.Fragment>
+    <>
       <Link to={`/profile/${author.username}`}>
         <img src={author.image} alt={author.username} />
       </Link>
@@ -21,8 +21,8 @@ const UserMeta: React.FC<UserMetaProps> = ({ article }) => {
         </Link>
         <span className="date">{formatDate(article.createdAt)}</span>
       </div>
-    </React.Fragment>
+    </>
   )
 }
 
-export default UserMeta
+export default ProfileMeta

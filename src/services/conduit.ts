@@ -68,45 +68,46 @@ export const Profile = {
 
 // Articles
 export const Articles = {
-  query: async (config: IAxiosArticlesConfig) =>
+  query: async (config: IAxiosArticlesConfig, limit: number) =>
     await axios.request<IMultiArticlesRes>({
       method: 'get',
       ...config,
+      params: { ...config.params, limit },
     } as IAxiosArticlesConfig),
 
-  feed: async () =>
+  feed: async (limit: number) =>
     await axios.request<IMultiArticlesRes>({
       method: 'get',
       url: 'articles/feed',
-      params: { limit: 1, offset: 0 },
+      params: { limit, offset: 0 },
     } as IAxiosArticlesConfig),
 
-  profile: async (username: string) =>
+  profile: async (username: string, limit: number) =>
     await axios.request<IMultiArticlesRes>({
       method: 'get',
       url: 'articles',
-      params: { limit: 1, offset: 0, author: username },
+      params: { limit, offset: 0, author: username },
     } as IAxiosArticlesConfig),
 
-  favorited: async (username: string) =>
+  favorited: async (username: string, limit: number) =>
     await axios.request<IMultiArticlesRes>({
       method: 'get',
       url: 'articles',
-      params: { limit: 1, offset: 0, favorited: username },
+      params: { limit, offset: 0, favorited: username },
     } as IAxiosArticlesConfig),
 
-  tag: async (tag: string) =>
+  tag: async (tag: string, limit: number) =>
     await axios.request<IMultiArticlesRes>({
       method: 'get',
       url: 'articles',
-      params: { limit: 1, offset: 0, tag: tag },
+      params: { limit, offset: 0, tag },
     } as IAxiosArticlesConfig),
 
-  all: async () =>
+  all: async (limit: number) =>
     await axios.request<IMultiArticlesRes>({
       method: 'get',
       url: 'articles',
-      params: { limit: 1, offset: 0 },
+      params: { limit, offset: 0 },
     } as IAxiosArticlesConfig),
 
   single: async (slug: string) =>

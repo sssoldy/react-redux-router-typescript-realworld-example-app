@@ -50,6 +50,8 @@ export interface IUpdateArticleReq {
 export interface IArticlesState {
   status: ResponseStatus
   error: IResponseError | null
+  articlesCount: number | null
+  limit: number
   config: IAxiosArticlesConfig | null
   filter: IResponseFilter | null
 }

@@ -1,4 +1,5 @@
 import * as React from 'react'
+import Tag from './Tag'
 import TagFilter from './TagFilter'
 
 interface TagListProps {
@@ -10,17 +11,12 @@ const TagList: React.FC<TagListProps> = ({ isFilter, tags }) => {
   return (
     <ul className="tag-list">
       {tags.map(tag => {
-        if (isFilter) {
-          return (
-            <li key={tag}>
-              <TagFilter tag={tag} />
-            </li>
-          )
-        }
-        return (
-          <li key={tag} className="tag-default tag-pill tag-outline">
-            {tag}
+        return isFilter ? (
+          <li key={tag}>
+            <TagFilter tag={tag} />
           </li>
+        ) : (
+          <Tag key={tag} tag={tag} />
         )
       })}
     </ul>

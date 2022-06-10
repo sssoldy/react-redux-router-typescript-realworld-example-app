@@ -4,7 +4,7 @@ import { addComment } from '../../app/slices/commentsSlice'
 import { useAsyncThunk } from '../../hooks/useAsyncThunk'
 import { INewComment } from '../../types/comments'
 import { IUser } from '../../types/user'
-import ErrorList from '../Error/ErrorList'
+import ErrorList from '../UI/Error/ErrorList'
 import Spinner from '../UI/Spinner/Spinner'
 
 interface CommentFormProps {
@@ -31,7 +31,7 @@ const CommentForm: React.FC<CommentFormProps> = ({ user }) => {
   }
 
   return (
-    <React.Fragment>
+    <>
       <form className="card comment-form" onSubmit={e => onFormSubmitted(e)}>
         <div className="card-block">
           <textarea
@@ -55,7 +55,7 @@ const CommentForm: React.FC<CommentFormProps> = ({ user }) => {
         </div>
       </form>
       <ErrorList error={error} />
-    </React.Fragment>
+    </>
   )
 }
 

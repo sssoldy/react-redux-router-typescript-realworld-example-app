@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { IResponseError } from '../../types/error'
+import { IResponseError } from '../../../types/error'
 import ErrorList from './ErrorList'
 
 interface ErrorAlertProps {

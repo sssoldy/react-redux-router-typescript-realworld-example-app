@@ -3,7 +3,7 @@ import {
   IGenericResError,
   IResponseError,
   IUnexpectedResError,
-} from '../../types/error'
+} from '../../../types/error'
 
 interface ErrorListProps {
   error: IResponseError | null

@@ -1,26 +1,29 @@
-import { EntityId } from '@reduxjs/toolkit'
 import * as React from 'react'
 import { Link } from 'react-router-dom'
-import { useAppSelector } from '../../app/hooks'
-import { selectArticleById } from '../../app/slices/articlesSlice'
-import { IProfile } from '../../types/profile'
+import { IArticle } from '../../types/articles'
+import { fallbackHandler } from '../../utils/misc'
+import ProfileMeta from '../Profile/ProfileMeta'
 import TagList from '../Tag/TagList'
 import FavoriteButton from '../UI/FavoriteButton'
-import UserMeta from '../UI/UserMeta'
 
-interface ArticlePreviewProps {
-  id: EntityId
+interface ArticleItemContentProps {
+  article: IArticle
+  isFallback?: boolean
 }
 
-const ArticlePreview: React.FC<ArticlePreviewProps> = ({ id }) => {
-  const article = useAppSelector(state => selectArticleById(state, id))
-
-  if (!article) return null
+const ArticleItemContent: React.FC<ArticleItemContentProps> = ({
+  article,
+  isFallback = false,
+}) => {
+  const { rootClassName, onRootClicked } = fallbackHandler(isFallback)
 
   return (
-    <div className="article-preview">
+    <div
+      className={`article-preview ${rootClassName}`}
+      onClickCapture={onRootClicked}
+    >
       <div className="article-meta">
-        <UserMeta article={article} />
+        <ProfileMeta article={article} />
         <FavoriteButton className="pull-xs-right" article={article}>
           {article.favoritesCount}
         </FavoriteButton>
@@ -35,4 +38,4 @@ const ArticlePreview: React.FC<ArticlePreviewProps> = ({ id }) => {
   )
 }
 
-export default React.memo(ArticlePreview)
+export default ArticleItemContent

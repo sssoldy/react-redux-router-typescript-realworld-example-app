@@ -3,7 +3,7 @@ import { Route, Routes } from 'react-router-dom'
 import { useAppDispatch } from './app/hooks'
 import { getCurrentUser } from './app/slices/userSlice'
 import RequireAuth from './components/Auth/RequireAuth'
-import FullPageError from './components/Error/FullPageError'
+import FullPageError from './components/UI/Error/FullPageError'
 import FullPageSpinner from './components/UI/Spinner/FullPageSpinner'
 import Footer from './layouts/Footer'
 import Header from './layouts/Header'
@@ -12,6 +12,7 @@ import Article from './pages/Article'
 import Editor from './pages/Editor'
 import Home from './pages/Home'
 import Login from './pages/Login'
+import NotFound from './pages/NotFound'
 import Profile from './pages/Profile'
 import Register from './pages/Register'
 import Settings from './pages/Settings'
@@ -45,7 +46,7 @@ const App: React.FC = () => {
   if (token && status === 'failed') return <FullPageError error={error} />
 
   return (
-    <React.Fragment>
+    <>
       <Header />
       <Routes>
         <Route path="/" element={<Main />}>
@@ -59,11 +60,11 @@ const App: React.FC = () => {
             <Route path="editor/:slug" element={<Editor />} />
             <Route path="settings" element={<Settings />} />
           </Route>
-          <Route path="*" element={<Home />} />
+          <Route path="*" element={<NotFound />} />
         </Route>
       </Routes>
       <Footer />
-    </React.Fragment>
+    </>
   )
 }
 

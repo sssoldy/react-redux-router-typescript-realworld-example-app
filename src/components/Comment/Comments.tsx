@@ -8,11 +8,11 @@ const Comments: React.FC = () => {
   const user = useAppSelector(selectUser)
 
   return (
-    <React.Fragment>
+    <>
       {user && <CommentForm user={user} />}
       <CommentList />
-    </React.Fragment>
+    </>
   )
 }
 
-export default Comments
+export default React.memo(Comments)

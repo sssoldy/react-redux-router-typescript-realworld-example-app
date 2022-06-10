@@ -5,30 +5,31 @@ import { ResponseStatus } from '../types/api'
 import { IResponseError } from '../types/error'
 import { store } from '../app/store'
 
-interface State {
+interface State<T> {
+  data: T | null
   status: ResponseStatus
   error: IResponseError | null
 }
 
-type Action =
+type Action<T> =
   | { type: 'idle' }
   | { type: 'pending' }
   | { type: 'rejected'; error: IResponseError }
-  | { type: 'fulfilled' }
+  | { type: 'fulfilled'; data: T }
   | { type: 'reset' }
 
-function reducer(state: State, action: Action): State {
+function reducer<T>(state: State<T>, action: Action<T>): State<T> {
   switch (action.type) {
     case 'idle':
       return { ...state, status: 'idle' }
     case 'pending':
-      return { status: 'loading', error: null }
+      return { ...state, status: 'loading' }
     case 'rejected':
-      return { status: 'failed', error: action.error }
+      return { ...state, status: 'failed', error: action.error }
     case 'fulfilled':
-      return { status: 'successed', error: null }
+      return { data: action.data, status: 'successed', error: null }
     case 'reset':
-      return { status: 'idle', error: null }
+      return { data: null, status: 'idle', error: null }
     default:
       throw new Error()
   }
@@ -36,21 +37,25 @@ function reducer(state: State, action: Action): State {
 
 const appDispatch = store.dispatch
 
-const useAsyncThunk = () => {
-  const [state, dispatch] = useReducer(reducer, {
-    status: 'idle',
-    error: null,
-  })
-  const { status, error } = state
+const useAsyncThunk = <T>() => {
+  const [state, dispatch] = useReducer<React.Reducer<State<T>, Action<T>>>(
+    reducer,
+    {
+      data: null,
+      status: 'idle',
+      error: null,
+    },
+  )
+  const { data, status, error } = state
 
   const reset = React.useCallback(() => dispatch({ type: 'reset' }), [])
 
   const run = React.useCallback(
-    async (thunkAction: AsyncThunkAction<any, any, {}>) => {
+    async (thunkAction: AsyncThunkAction<T, any, {}>) => {
       try {
         dispatch({ type: 'pending' })
         const data = await appDispatch(thunkAction).unwrap()
-        dispatch({ type: 'fulfilled' })
+        dispatch({ type: 'fulfilled', data: data })
         return data
       } catch (error) {
         dispatch({ type: 'rejected', error: error as IResponseError })
@@ -68,6 +73,7 @@ const useAsyncThunk = () => {
     isError: status === 'failed',
     isSuccess: status === 'successed',
 
+    data,
     error,
     status,
     reset,
