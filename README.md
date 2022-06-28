@@ -1,13 +1,13 @@
 # ![React + Redux Example App](project-logo.png)
 
-[![Netlify Status](https://api.netlify.com/api/v1/badges/1a274c7c-5d0a-4112-a5c8-681dfaecd8bf/deploy-status)](https://app.netlify.com/sites/startling-starburst-f3fb23/deploys)
+[![Netlify Status](https://api.netlify.com/api/v1/badges/1a274c7c-5d0a-4112-a5c8-681dfaecd8bf/deploy-status)](https://app.netlify.com/sites/conduit-ts/deploys)
 [![RealWorld Frontend](https://img.shields.io/badge/realworld-frontend-%23783578.svg)](http://realworld.io)
 
 > ### React + Redux codebase containing real world examples (CRUD, auth, advanced patterns, etc) that adheres to the [RealWorld](https://github.com/gothinkster/realworld-example-apps) spec and API.
 
 ## Getting started
 
-You can view a live demo over at https://startling-starburst-f3fb23.netlify.app/
+You can view a live demo over at https://conduit-ts.netlify.app/
 
 To get the frontend running locally:
 
@@ -31,8 +31,7 @@ can be found in the
 
 The example application is a social blogging site (i.e. a Medium.com clone)
 called "Conduit". It uses a custom API for all requests, including
-authentication. You can view a live demo over at
-https://startling-starburst-f3fb23.netlify.app/
+authentication. You can view a live demo over at https://conduit-ts.netlify.app/
 
 **General functionality:**
 
